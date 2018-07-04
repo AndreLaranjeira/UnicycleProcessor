@@ -6,7 +6,7 @@ entity MIPS_Controller is
 	
 	port(int_opcode : in std_logic_vector(5 downto 0);
         regDST, jump, branch, memRead, memToReg, memWrite, ALUsrc, regWrite : out std_logic;
-	ALUop out std_logic_vector (1 downto 0));
+	ALUop out std_logic_vector (2 downto 0));
 		  
 end MIPS_Controller;
 
@@ -24,7 +24,7 @@ begin
 				memWrite <= '0';
 				ALUsrc <= '0';
 				regWrite <= '1';
-				ALUop <= '10';
+				ALUop <= '100';
         end case;
 		
 	end process;
