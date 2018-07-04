@@ -157,6 +157,19 @@ begin
 			ALUsrc2 <= '1';
 			regWrite <= '0';
 			ALUop <= '000';
+		when others =>
+			regDST <= '0';
+			jump <= '0';
+			branch <= '0';
+			branchN <= '0';
+			singExt <= '0';
+			memRead <= '0';
+			memToReg <= '0';
+			memWrite <= '0';
+			ALUsrc <= '0';
+			ALUsrc2 <= '0';
+			regWrite <= '0';
+			ALUop <= '000';
 		end case;
 	end process;
 end behavioral;
