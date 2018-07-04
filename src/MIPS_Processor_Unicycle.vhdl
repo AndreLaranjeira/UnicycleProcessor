@@ -7,10 +7,11 @@ entity MIPS_Processor_Unicycle is
 	generic(MIF_FILE_DATA : string := "DATA.mif";
 			  MIF_FILE_INSTRUCTION : string := "RAM.mif";
 			  BREG_SIZE : natural := 5;
-			  TYPES_SIZE : natural := 1;
+			  OPCODE_SIZE : natural := 4;
+			  TYPES_SIZE : natural := 2;
 			  WSIZE : natural := 32);
 	
-	port(clock : in STD_LOGIC;
+	port(clock, reset : in STD_LOGIC;
 		  keys : in STD_LOGIC_VECTOR(7 downto 0));
 		  
 end MIPS_Processor_Unicycle;
@@ -27,7 +28,7 @@ architecture behavioral of MIPS_Processor_Unicycle is
 			  readADDR1, readADDR2 : in std_logic_vector(4 downto 0);
 			  writeADDR : in std_logic_vector(4 downto 0);
 			  write_data : in std_logic_vector(WSIZE-1 downto 0);
-			  Reg1, Reg2 : out std_logic_vector(WSIZE-1 downto 0));
+			  reg1, reg2 : out std_logic_vector(WSIZE-1 downto 0));
 		  
 	end component;
 	
@@ -83,21 +84,44 @@ architecture behavioral of MIPS_Processor_Unicycle is
 
 -- Control signals
 	
-signal branch, read_DATA_MEM, ULA_zero, write_BREG, write_DATA_MEM : STD_LOGIC;
+signal branch, read_DATA_MEM, write_BREG, write_DATA_MEM : STD_LOGIC;
 signal sel_BREG_WD, sel_BREG_WR, sel_ULA_opB : STD_LOGIC;
-signal opcode_type : STD_LOGIC_VECTOR(TYPES_SIZE downto 0);
+signal ULA_overflow, ULA_zero : STD_LOGIC;
+signal instruction_type : STD_LOGIC_VECTOR(TYPES_SIZE-1 downto 0);
+signal ULA_opcode : STD_LOGIC_VECTOR(OPCODE_SIZE-1 downto 0);
 
 -- Data signals
 
-signal branch_ADDR : STD_LOGIC_VECTOR(WSIZE-1 downto 0);	
 signal BREG_R1, BREG_R2, BREG_WR : STD_LOGIC_VECTOR(BREG_SIZE-1 downto 0);
+
+signal branch_ADDR : STD_LOGIC_VECTOR(WSIZE-1 downto 0);	
 signal BREG_D1, BREG_D2, BREG_WD : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 signal DATA_MEM_output : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 signal instruction : STD_LOGIC_VECTOR(WSIZE-1 downto 0); 
 signal PC, PC_plus_4, next_PC, sxt_imm : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
-signal ULA_opA, ULA_opB, ULA_result : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
+signal ULA_opB, ULA_result : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 	
 begin
+
+-- Signal attributions:
+	
+	BREG_R1 <= instruction(25 downto 21);
+	BREG_R2 <= instruction(20 downto 16);
+	sxt_imm <= std_logic_vector(resize(signed(instruction(15 downto 0)), sxt_imm'length));
+
+-- BREG (Register bank):
+
+	BREG : MIPS_BREG
+		generic map(WSIZE => WSIZE)
+		port map(clock => clock,
+					readADDR1 => BREG_R1,
+					readADDR2 => BREG_R2,
+					reg1 => BREG_D1,
+					reg2 => BREG_D2,
+					reset => reset,
+					writeADDR => BREG_WR,
+					write_data => BREG_WD,
+					write_enable => write_BREG);
 
 -- Multiplexers:
 
@@ -128,6 +152,17 @@ begin
 					input2 => sxt_imm,
 					selector => sel_ULA_opB,
 					output => ULA_opB);	
+
+-- ULA (Arithmetic and Logic Unit):
+
+	ULA: MIPS_ULA
+		generic map(WSIZE => WSIZE)
+		port map(opcode => ULA_opcode,
+					A => BREG_D1,
+					B => ULA_opB,
+					O => ULA_overflow,
+					R => ULA_result,
+					Z => ULA_zero);
 					
 -- Unsigned adders:
 					
@@ -139,7 +174,7 @@ begin
 	
 	UA_PC_plus_4 : UnsignedAdder
 		generic map(WSIZE => WSIZE)
-		port map(input1 => x"00000004",
+		port map(input1 => (2 => '1', others => '0'),	-- 4
 					input2 => PC,
 					output => PC_plus_4);
 	
@@ -149,4 +184,4 @@ end behavioral;
 --		Finish behavioral architecture of MIPS_Processor_Unicycle.
 --		Organize signal order.
 --		Break down MIPS_Memory component. 
---		Add generic for number of registers in MIPS_BREG component. 
+--		Add generics for every component length variable. 
