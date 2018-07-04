@@ -52,10 +52,6 @@ architecture behavioral of MIPS_ULA_Controller is
                 ALU <= "0000"
             when "011" =>
                 ALU <= "0001"
-            when "101" =>
-                ALU <= "0011"
-            when "111" =>
-                ALU <= "0110"
             when "100" =>
                 case intFunct is
                     when "101000"=> -- AND
@@ -92,7 +88,13 @@ architecture behavioral of MIPS_ULA_Controller is
 
                     when others => 
                         ALU <= "1111";
-                    end case;
+                end case;
+            when "101" =>
+                ALU <= "0011"
+            when "110" =>
+                ALU <= "0110"
+            when others =>
+                ALU <= "1111";
         end case;
     end process;
 

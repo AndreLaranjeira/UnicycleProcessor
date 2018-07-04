@@ -17,7 +17,7 @@ end MIPS_Controller;
 -- 011 -> or
 -- 100 -> tipo R
 -- 101 -> soma unsigned
--- 111 -> slt
+-- 110 -> slt
 
 architecture behavioral of MIPS_Controller is
 begin
@@ -101,7 +101,7 @@ begin
 			ALUsrc <= '1';
 			ALUsrc2 <= '0';
 			regWrite <= '1';
-			ALUop <= "111";
+			ALUop <= "110";
             	when "001100" => --ANDi
 			regDST <= '0';
 			jump <= '0';
@@ -169,7 +169,7 @@ begin
 			ALUsrc <= '0';
 			ALUsrc2 <= '0';
 			regWrite <= '0';
-			ALUop <= '000';
+			ALUop <= '111';
 		end case;
 	end process;
 end behavioral;
