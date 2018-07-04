@@ -18,7 +18,7 @@ end MIPS_Processor_Unicycle;
 
 architecture behavioral of MIPS_Processor_Unicycle is
 
--- Components
+-- Components:
 
 	component MIPS_BREG is
 
@@ -96,9 +96,11 @@ architecture behavioral of MIPS_Processor_Unicycle is
 
 -- Control signals
 	
-signal branch, read_DATA_MEM, write_BREG, write_DATA_MEM : STD_LOGIC;
+signal branch, read_DATA_MEM : STD_LOGIC;
 signal sel_BREG_WD, sel_BREG_WR, sel_ULA_opB : STD_LOGIC;
 signal ULA_overflow, ULA_zero : STD_LOGIC;
+signal write_BREG, write_DATA_MEM : STD_LOGIC;
+
 signal instruction_type : STD_LOGIC_VECTOR(TYPES_SIZE-1 downto 0);
 signal ULA_opcode : STD_LOGIC_VECTOR(OPCODE_SIZE-1 downto 0);
 
@@ -232,5 +234,4 @@ end behavioral;
 -- TODO list:
 --		Finish behavioral architecture of MIPS_Processor_Unicycle.
 --		Replace 2 PC related Mux2to1 with 1 Mux4to1.
---		Organize signal order.
 --		Add generics for every component length variable. 
