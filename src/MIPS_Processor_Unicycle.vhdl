@@ -83,17 +83,18 @@ architecture behavioral of MIPS_Processor_Unicycle is
 
 -- Control signals
 	
-signal branch, read_DATA_MEM, write_BREG, write_DATA_MEM : STD_LOGIC;
+signal branch, read_DATA_MEM, ULA_zero, write_BREG, write_DATA_MEM : STD_LOGIC;
 signal sel_BREG_WD, sel_BREG_WR, sel_ULA_opB : STD_LOGIC;
 signal opcode_type : STD_LOGIC_VECTOR(TYPES_SIZE downto 0);
 
 -- Data signals
-	
+
+signal branch_ADDR : STD_LOGIC_VECTOR(WSIZE-1 downto 0);	
 signal BREG_R1, BREG_R2, BREG_WR : STD_LOGIC_VECTOR(BREG_SIZE-1 downto 0);
 signal BREG_D1, BREG_D2, BREG_WD : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 signal DATA_MEM_output : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 signal instruction : STD_LOGIC_VECTOR(WSIZE-1 downto 0); 
-signal PC_plus_4, next_PC, sxt_imm : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
+signal PC, PC_plus_4, next_PC, sxt_imm : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 signal ULA_opA, ULA_opB, ULA_result : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 	
 begin
@@ -113,17 +114,39 @@ begin
 					input2 => instruction(15 downto 11),
 					selector => sel_BREG_WR,
 					output => BREG_WR);
+					
+	Mux_next_PC : Multiplexer2to1
+		generic map(WSIZE => WSIZE)
+		port map(input1 => PC_plus_4, 
+					input2 => branch_ADDR,
+					selector => (branch and ULA_zero),
+					output => Next_PC);
 				
 	Mux_ULA_opB : Multiplexer2to1
 		generic map(WSIZE => WSIZE)
 		port map(input1 => BREG_D2, 
 					input2 => sxt_imm,
 					selector => sel_ULA_opB,
-					output => ULA_opB);		
-				
+					output => ULA_opB);	
+					
+-- Unsigned adders:
+					
+	UA_branch_ADDR : UnsignedAdder
+		generic map(WSIZE => WSIZE)
+		port map(input1 => BREG_D2, 
+					input2 => (sxt_imm(WSIZE-3 downto 0) & "00"),
+					output => branch_ADDR);	
+	
+	UA_PC_plus_4 : UnsignedAdder
+		generic map(WSIZE => WSIZE)
+		port map(input1 => x"00000004",
+					input2 => PC,
+					output => PC_plus_4);
+	
 end behavioral;
 
 -- TODO list:
 --		Finish behavioral architecture of MIPS_Processor_Unicycle.
+--		Organize signal order.
 --		Break down MIPS_Memory component. 
 --		Add generic for number of registers in MIPS_BREG component. 
