@@ -27,11 +27,32 @@ end MIPS_ULA_Controller;
 -- 1101 -> rtr
 -- 1110 -> rtl
 
+-- ALUops
+-- 000 -> soma
+-- 001 -> subtração
+-- 010 -> and
+-- 011 -> or
+-- 100 -> tipo R
+-- 101 -> soma unsigned
+-- 111 -> slt
+
 architecture behavioral of MIPS_ULA_Controller is
     begin
     Operation: process(ALUop, intFunct)
 	begin
 	    case ALUop is
+            when "000" =>
+                ALU <= "0010"
+            when "001" =>
+                ALU <= "0100"
+            when "010" =>
+                ALU <= "0000"
+            when "011" =>
+                ALU <= "0001"
+            when "101" =>
+                ALU <= "0011"
+            when "111" =>
+                ALU <= "0110"
             when "100" =>
                 case intFunct is
                     
