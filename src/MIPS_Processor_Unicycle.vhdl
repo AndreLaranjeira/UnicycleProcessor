@@ -6,9 +6,13 @@ entity MIPS_Processor_Unicycle is
 
 	-- TODO: Code the ports and generics of this entity.
 
-	-- generic();
+	generic(MIF_FILE_INSTRUCTION : string := "RAM.mif";
+			  MIF_FILE_DATA : string := "DATA.mif";
+			  inst_types_bits : natural := 1;
+			  WSIZE : natural := 32);
 	
-	-- port();
+	port(clock : in STD_LOGIC;
+		  keys : in STD_LOGIC_VECTOR(7 downto 0));
 		  
 end MIPS_Processor_Unicycle;
 
@@ -34,7 +38,7 @@ architecture behavioral of MIPS_Processor_Unicycle is
 	component MIPS_Memory is
 
 		generic(MIF_FILE : string;
-				  WSIZE : natural=);
+				  WSIZE : natural);
 	
 		port(clock, selector1, write_PC : in STD_LOGIC;
 			  keys : in STD_LOGIC_VECTOR(7 downto 0);
@@ -63,6 +67,13 @@ architecture behavioral of MIPS_Processor_Unicycle is
 			  output : out STD_LOGIC_VECTOR(WSIZE-1 downto 0));
 		  
 	end component;
+	
+	component NibbleDisplay is
+
+		port(nibble : in STD_LOGIC_VECTOR(3 downto 0);
+			  display_code : out STD_LOGIC_VECTOR(7 downto 0));
+		  
+	end component;
 
 	component UnsignedAdder is
 	
@@ -74,4 +85,18 @@ architecture behavioral of MIPS_Processor_Unicycle is
 		  
 	end component;
 
+signal branch, read_DATA_MEM, write_BREG, write_DATA_MEM : STD_LOGIC;
+signal mux_BREG_WD, mux_BREG_WR, mux_ULA_opB : STD_LOGIC;
+signal opcode_type : STD_LOGIC_VECTOR(inst_types_bits downto 0);
+	
+signal BREG_R1, BREG_R2, BREG_WR : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
+signal BREG_D1, BREG_D2, BREG_WD : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
+signal DATA_MEM_output : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
+signal PC_plus_4, next_PC, sxt_imm : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
+signal ULA_opA, ULA_opB, ULA_result : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
+	
+begin
+
+
+	
 end behavioral;
