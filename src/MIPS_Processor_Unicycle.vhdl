@@ -31,17 +31,6 @@ architecture behavioral of MIPS_Processor_Unicycle is
 			  reg1, reg2 : out std_logic_vector(WSIZE-1 downto 0));
 		  
 	end component;
-	
-	component MIPS_Memory is
-
-		generic(MIF_FILE : string;
-				  WSIZE : natural);
-	
-		port(clock, selector1, write_PC : in STD_LOGIC;
-			  keys : in STD_LOGIC_VECTOR(7 downto 0);
-			  output : out STD_LOGIC_VECTOR(WSIZE-1 downto 0));
-		  
-	end component;
 
 	component MIPS_ULA is
 
@@ -211,7 +200,7 @@ begin
 		port map(clock => clock,
 					data => PC_input,
 					output => PC_output,
-					write_enable => not(run));
+					write_enable => run);
 					
 -- ULA (Arithmetic and Logic Unit):
 
@@ -244,5 +233,4 @@ end behavioral;
 --		Finish behavioral architecture of MIPS_Processor_Unicycle.
 --		Replace 2 PC related Mux2to1 with 1 Mux4to1.
 --		Organize signal order.
---		Break down MIPS_Memory component. 
 --		Add generics for every component length variable. 
