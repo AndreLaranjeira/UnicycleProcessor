@@ -4,14 +4,14 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity MIPS_Processor_Unicycle is
 
-	generic(MIF_FILE_DATA : string := "DATA.mif";
-			  MIF_FILE_INSTRUCTION : string := "RAM.mif";
+	generic(MIF_FILE_DATA : string := "mif/Data.mif";
+			  MIF_FILE_INSTRUCTION : string := "mif/Instructions.mif";
 			  BREG_SIZE : natural := 5;
 			  OPCODE_SIZE : natural := 4;
 			  TYPES_SIZE : natural := 2;
 			  WSIZE : natural := 32);
 	
-	port(clock, reset : in STD_LOGIC;
+	port(clock, keys_input, reset, run : in STD_LOGIC;
 		  keys : in STD_LOGIC_VECTOR(7 downto 0));
 		  
 end MIPS_Processor_Unicycle;
@@ -71,6 +71,29 @@ architecture behavioral of MIPS_Processor_Unicycle is
 			  display_code : out STD_LOGIC_VECTOR(7 downto 0));
 		  
 	end component;
+	
+	component ProgramCounter is
+	
+		generic(WSIZE : natural);
+	
+		port(clock : in STD_LOGIC;
+			  write_enable : in STD_LOGIC;
+			  data : in STD_LOGIC_VECTOR(WSIZE-1 downto 0);
+			  output : out STD_LOGIC_VECTOR(WSIZE-1 downto 0));
+		  
+	end component;
+	
+	component RAM is
+
+		GENERIC(MIF_FILE : STRING);
+	
+		PORT(address : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
+			  clock : IN STD_LOGIC;
+			  data : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+			  wren : IN STD_LOGIC;
+			  q : OUT STD_LOGIC_VECTOR (31 DOWNTO 0));
+		  
+	end component;
 
 	component UnsignedAdder is
 	
@@ -98,7 +121,9 @@ signal branch_ADDR : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 signal BREG_D1, BREG_D2, BREG_WD : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 signal DATA_MEM_output : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 signal instruction : STD_LOGIC_VECTOR(WSIZE-1 downto 0); 
-signal PC, PC_plus_4, next_PC, sxt_imm : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
+signal PC_input, PC_output : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
+signal PC_plus_4, next_PC : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
+signal sxt_imm, sxt_keys : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 signal ULA_opB, ULA_result : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 	
 begin
@@ -107,7 +132,8 @@ begin
 	
 	BREG_R1 <= instruction(25 downto 21);
 	BREG_R2 <= instruction(20 downto 16);
-	sxt_imm <= std_logic_vector(resize(signed(instruction(15 downto 0)), sxt_imm'length));
+	sxt_imm <= std_logic_vector(resize(signed(instruction(15 downto 0)), WSIZE));
+	sxt_keys <= std_logic_vector(resize(signed(keys & "00"), WSIZE));
 
 -- BREG (Register bank):
 
@@ -123,6 +149,24 @@ begin
 					write_data => BREG_WD,
 					write_enable => write_BREG);
 
+-- Memory units (RAMs):
+
+	Data_RAM : RAM 
+		generic map(MIF_FILE => MIF_FILE_DATA)
+		port map(address => ULA_result(7 downto 0),
+					clock => clock,
+					data => BREG_D2,
+					wren => write_DATA_MEM,
+					q => DATA_MEM_output);
+
+	Instruction_RAM : RAM 
+		generic map(MIF_FILE => MIF_FILE_INSTRUCTION)
+		port map(address => PC_output(9 downto 2),
+					clock => clock,
+					data => x"00000000",
+					wren => '0',
+					q => instruction);
+					
 -- Multiplexers:
 
 	Mux_BREG_WD : Multiplexer2to1
@@ -138,13 +182,20 @@ begin
 					input2 => instruction(15 downto 11),
 					selector => sel_BREG_WR,
 					output => BREG_WR);
-					
+	
+	Mux_PC_input : Multiplexer2to1
+		generic map(WSIZE => WSIZE)
+		port map(input1 => next_PC,
+					input2 => sxt_keys,
+					selector => keys_input,
+					output => PC_input);
+	
 	Mux_next_PC : Multiplexer2to1
 		generic map(WSIZE => WSIZE)
 		port map(input1 => PC_plus_4, 
 					input2 => branch_ADDR,
 					selector => (branch and ULA_zero),
-					output => Next_PC);
+					output => next_PC);
 				
 	Mux_ULA_opB : Multiplexer2to1
 		generic map(WSIZE => WSIZE)
@@ -153,6 +204,15 @@ begin
 					selector => sel_ULA_opB,
 					output => ULA_opB);	
 
+-- PC (Program counter):
+
+	PC: ProgramCounter
+		generic map(WSIZE => WSIZE)
+		port map(clock => clock,
+					data => PC_input,
+					output => PC_output,
+					write_enable => not(run));
+					
 -- ULA (Arithmetic and Logic Unit):
 
 	ULA: MIPS_ULA
@@ -174,14 +234,15 @@ begin
 	
 	UA_PC_plus_4 : UnsignedAdder
 		generic map(WSIZE => WSIZE)
-		port map(input1 => (2 => '1', others => '0'),	-- 4
-					input2 => PC,
+		port map(input1 => std_logic_vector(to_unsigned(4, WSIZE)),
+					input2 => PC_output,
 					output => PC_plus_4);
 	
 end behavioral;
 
 -- TODO list:
 --		Finish behavioral architecture of MIPS_Processor_Unicycle.
+--		Replace 2 PC related Mux2to1 with 1 Mux4to1.
 --		Organize signal order.
 --		Break down MIPS_Memory component. 
 --		Add generics for every component length variable. 
