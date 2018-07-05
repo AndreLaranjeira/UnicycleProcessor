@@ -11,7 +11,8 @@ entity MIPS_Processor_Unicycle is
 			  TYPES_SIZE : natural := 3;
 			  WSIZE : natural := 32);
 	
-	port(clock, keys_input, nibble_view, reset, run : in STD_LOGIC;
+	port(clock, keys_input, reset, run : in STD_LOGIC;
+		  nibble_view : in STD_LOGIC_VECTOR(1 downto 0);
 		  keys : in STD_LOGIC_VECTOR(7 downto 0);
 		  nibble_codes : out STD_LOGIC_VECTOR(0 to 55));
 		  
@@ -103,6 +104,13 @@ architecture behavioral of MIPS_Processor_Unicycle is
 		  
 	end component;
 	
+	component NibbleDisplayConverter is
+	
+		port(input : in STD_LOGIC_VECTOR(31 downto 0);
+			  output : out STD_LOGIC_VECTOR(0 to 55));
+		  
+	end component;
+	
 	component ProgramCounter is
 	
 		generic(WSIZE : natural);
@@ -164,7 +172,8 @@ signal PC_plus_4, next_PC : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 signal sxt_imm, sxt_keys : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 signal ULA_opB, ULA_result : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 
-signal inst_nibble_codes, PC_nibble_codes : STD_LOGIC_VECTOR(0 to 55);
+signal data_mem_nibble_codes, inst_nibble_codes : STD_LOGIC_VECTOR(0 to 55);
+signal PC_nibble_codes, ULA_nibble_codes : STD_LOGIC_VECTOR(0 to 55);
 	
 begin
 
@@ -261,10 +270,12 @@ begin
 					selector => (jump and sel_BREG_WD) & sel_BREG_WR,
 					output => BREG_WR);
 	
-	Mux_nibble_codes: Multiplexer2to1
+	Mux_nibble_codes: Multiplexer4to1
 		generic map(WSIZE => 56)
 		port map(input1 => PC_nibble_codes, 
 					input2 => inst_nibble_codes,
+					input3 => ULA_nibble_codes, 
+					input4 => data_mem_nibble_codes,
 					selector => nibble_view,
 					output => nibble_codes);
 	
@@ -295,71 +306,23 @@ begin
 					selector => (sel_shamt & sel_ULA_opB),
 					output => ULA_opB);	
 
--- Nibble displays:
+-- Nibble display converters:
 
-	ND_PC_0: NibbleDisplay
-		port map(display_code => PC_nibble_codes(0 to 6),
-					nibble => PC_output(3 downto 0));
-
-	ND_PC_1: NibbleDisplay
-		port map(display_code => PC_nibble_codes(7 to 13),
-					nibble => PC_output(7 downto 4));
+	NDC_Data_Mem: NibbleDisplayConverter
+		port map(input => DATA_MEM_output,
+					output => data_mem_nibble_codes);
 					
-	ND_PC_2: NibbleDisplay
-		port map(display_code => PC_nibble_codes(14 to 20),
-					nibble => PC_output(11 downto 8));
-					
-	ND_PC_3: NibbleDisplay
-		port map(display_code => PC_nibble_codes(21 to 27),
-					nibble => PC_output(15 downto 12));					
+	NDC_inst: NibbleDisplayConverter
+		port map(input => instruction,
+					output => inst_nibble_codes);					
 
-	ND_PC_4: NibbleDisplay
-		port map(display_code => PC_nibble_codes(28 to 34),
-					nibble => PC_output(19 downto 16));
-					
-	ND_PC_5: NibbleDisplay
-		port map(display_code => PC_nibble_codes(35 to 41),
-					nibble => PC_output(23 downto 20));
+	NDC_PC: NibbleDisplayConverter
+		port map(input => PC_output,
+					output => PC_nibble_codes);
 
-	ND_PC_6: NibbleDisplay
-		port map(display_code => PC_nibble_codes(42 to 48),
-					nibble => PC_output(27 downto 24));					
-
-	ND_PC_7: NibbleDisplay
-		port map(display_code => PC_nibble_codes(49 to 55),
-					nibble => PC_output(31 downto 28));
-
-	ND_inst_0: NibbleDisplay
-		port map(display_code => inst_nibble_codes(0 to 6),
-					nibble => instruction(3 downto 0));
-
-	ND_inst_1: NibbleDisplay
-		port map(display_code => inst_nibble_codes(7 to 13),
-					nibble => instruction(7 downto 4));
-					
-	ND_inst_2: NibbleDisplay
-		port map(display_code => inst_nibble_codes(14 to 20),
-					nibble => instruction(11 downto 8));
-					
-	ND_inst_3: NibbleDisplay
-		port map(display_code => inst_nibble_codes(21 to 27),
-					nibble => instruction(15 downto 12));					
-
-	ND_inst_4: NibbleDisplay
-		port map(display_code => inst_nibble_codes(28 to 34),
-					nibble => instruction(19 downto 16));
-					
-	ND_inst_5: NibbleDisplay
-		port map(display_code => inst_nibble_codes(35 to 41),
-					nibble => instruction(23 downto 20));
-
-	ND_inst_6: NibbleDisplay
-		port map(display_code => inst_nibble_codes(42 to 48),
-					nibble => instruction(27 downto 24));					
-
-	ND_inst_7: NibbleDisplay
-		port map(display_code => inst_nibble_codes(49 to 55),
-					nibble => instruction(31 downto 28));
+	NDC_ULA: NibbleDisplayConverter
+		port map(input => ULA_result,
+					output => ULA_nibble_codes);
 					
 -- Program counters:
 
