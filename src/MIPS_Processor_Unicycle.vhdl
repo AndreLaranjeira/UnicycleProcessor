@@ -46,7 +46,7 @@ architecture behavioral of MIPS_Processor_Unicycle is
 		generic(WSIZE : natural);
 	
 		port(overflow, unknown_opcode : in STD_LOGIC;
-			  EPC : out STD_LOGIC_VECTOR(WSIZE-1 downto 0);
+			  exception_ADDR : out STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 			  exception : out STD_LOGIC);
 		  
 	end component;
@@ -153,7 +153,7 @@ signal BREG_R1, BREG_R2, BREG_WR : STD_LOGIC_VECTOR(BREG_SIZE-1 downto 0);
 signal branch_ADDR : STD_LOGIC_VECTOR(WSIZE-1 downto 0);	
 signal BREG_D1, BREG_D2, BREG_WD : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 signal DATA_MEM_output : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
-signal EPC : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
+signal EPC_output, exception_ADDR : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 signal instruction : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 signal jump_ADDR : STD_LOGIC_VECTOR(WSIZE-1 downto 0);	 
 signal PC_input, PC_output : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
@@ -204,7 +204,7 @@ begin
 	
 	Exception_Controller: MIPS_Exception_Controller
 		generic map(WSIZE => WSIZE)
-		port map(EPC => EPC,
+		port map(exception_ADDR => exception_ADDR,
 					exception => exception,
 					overflow => ULA_overflow,
 					unknown_opcode => unknown_opcode);
@@ -257,7 +257,7 @@ begin
 	Mux_PC_input: Multiplexer4to1
 		generic map(WSIZE => WSIZE)
 		port map(input1 => next_PC,
-					input2 => EPC,
+					input2 => exception_ADDR,
 					input3 => sxt_keys,
 					input4 => sxt_keys,
 					selector => (keys_input & exception),
@@ -281,8 +281,15 @@ begin
 					selector => (sel_shamt & sel_ULA_opB),
 					output => ULA_opB);	
 
--- PC (Program counter):
+-- Program counters:
 
+	EPC: ProgramCounter
+		generic map(WSIZE => WSIZE)
+		port map(clock => clock,
+					data => PC_plus_4,
+					output => EPC_output,
+					write_enable => exception);
+					
 	PC: ProgramCounter
 		generic map(WSIZE => WSIZE)
 		port map(clock => clock,
