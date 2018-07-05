@@ -13,7 +13,7 @@ entity MIPS_Processor_Unicycle is
 	
 	port(clock, keys_input, reset, run : in STD_LOGIC;
 		  keys : in STD_LOGIC_VECTOR(7 downto 0);
-		  nibble_codes : out STD_LOGIC_VECTOR(63 downto 0));
+		  nibble_codes : out STD_LOGIC_VECTOR(55 downto 0));
 		  
 end MIPS_Processor_Unicycle;
 
@@ -99,7 +99,7 @@ architecture behavioral of MIPS_Processor_Unicycle is
 	component NibbleDisplay is
 
 		port(nibble : in STD_LOGIC_VECTOR(3 downto 0);
-			  display_code : out STD_LOGIC_VECTOR(7 downto 0));
+			  display_code : out STD_LOGIC_VECTOR(6 downto 0));
 		  
 	end component;
 	
@@ -225,7 +225,7 @@ begin
 	Data_RAM: RAM 
 		generic map(MIF_FILE => MIF_FILE_DATA)
 		port map(address => ULA_result(7 downto 0),
-					clock => clock,
+					clock => not(clock),
 					data => BREG_D2,
 					wren => write_DATA_MEM,
 					q => DATA_MEM_output);
@@ -288,35 +288,35 @@ begin
 -- Nibble displays:
 
 	ND_PC_0: NibbleDisplay
-		port map(display_code => nibble_codes(7 downto 0),
+		port map(display_code => nibble_codes(6 downto 0),
 					nibble => PC_output(3 downto 0));
 
 	ND_PC_1: NibbleDisplay
-		port map(display_code => nibble_codes(15 downto 8),
+		port map(display_code => nibble_codes(13 downto 7),
 					nibble => PC_output(7 downto 4));
 					
 	ND_PC_2: NibbleDisplay
-		port map(display_code => nibble_codes(23 downto 16),
+		port map(display_code => nibble_codes(20 downto 14),
 					nibble => PC_output(11 downto 8));
 					
 	ND_PC_3: NibbleDisplay
-		port map(display_code => nibble_codes(31 downto 24),
+		port map(display_code => nibble_codes(27 downto 21),
 					nibble => PC_output(15 downto 12));					
 
 	ND_PC_4: NibbleDisplay
-		port map(display_code => nibble_codes(39 downto 32),
+		port map(display_code => nibble_codes(34 downto 28),
 					nibble => PC_output(19 downto 16));
 					
 	ND_PC_5: NibbleDisplay
-		port map(display_code => nibble_codes(47 downto 40),
+		port map(display_code => nibble_codes(41 downto 35),
 					nibble => PC_output(23 downto 20));
 
 	ND_PC_6: NibbleDisplay
-		port map(display_code => nibble_codes(55 downto 48),
+		port map(display_code => nibble_codes(48 downto 42),
 					nibble => PC_output(27 downto 24));					
 
 	ND_PC_7: NibbleDisplay
-		port map(display_code => nibble_codes(63 downto 56),
+		port map(display_code => nibble_codes(55 downto 49),
 					nibble => PC_output(31 downto 28));
 					
 -- Program counters:
