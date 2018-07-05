@@ -138,7 +138,7 @@ architecture behavioral of MIPS_Processor_Unicycle is
 
 -- Control signals
 	
-signal branch, branchN, eret, exception, jump, read_DATA_MEM : STD_LOGIC;
+signal branch, branchN, eret, exception, jump : STD_LOGIC;
 signal sel_BREG_WD, sel_BREG_WR, sel_JR, sel_shamt : STD_LOGIC;
 signal sel_ULA_opB, sel_ULA_opB2 : STD_LOGIC;
 signal ULA_overflow, ULA_zero : STD_LOGIC;
