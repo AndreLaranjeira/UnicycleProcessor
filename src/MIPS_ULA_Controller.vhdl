@@ -6,7 +6,7 @@ entity MIPS_ULA_Controller is
 	
 	port(ALUop : in std_logic_vector(2 downto 0);
         intFunct : in std_logic_vector(5 downto 0);
-	    ALU : out std_logic_vector (3 downto 0);
+	     ALU : out std_logic_vector (3 downto 0);
         jr : out std_logic;
         shamt : out std_logic);
 		  

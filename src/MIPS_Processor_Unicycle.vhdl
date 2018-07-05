@@ -35,18 +35,18 @@ architecture behavioral of MIPS_Processor_Unicycle is
 	component MIPS_Controller is
 	
 		port(int_opcode : in std_logic_vector(5 downto 0);
-        regDST, jump, branch, branchN, memRead, memToReg, memWrite, ALUsrc, ALUsrc2, regWrite : out std_logic;
-		ALUop : out std_logic_vector (2 downto 0));
+			  regDST, jump, branch, branchN, memRead, memToReg, memWrite, ALUsrc, ALUsrc2, regWrite : out std_logic;
+			  ALUop : out std_logic_vector (2 downto 0));
 		  
 	end component;
 
 	component MIPS_ULA_Controller is
 	
 		port(ALUop : in std_logic_vector(2 downto 0);
-        intFunct : in std_logic_vector(5 downto 0);
-	    ALU : out std_logic_vector (3 downto 0);
-        jr : out std_logic;
-        shamt : out std_logic);
+			  intFunct : in std_logic_vector(5 downto 0);
+			  ALU : out std_logic_vector (3 downto 0);
+			  jr : out std_logic;
+			  shamt : out std_logic);
 		  
 	end component;
 
@@ -125,14 +125,14 @@ architecture behavioral of MIPS_Processor_Unicycle is
 
 -- Control signals
 	
-signal branch,branchN, exception, jump, read_DATA_MEM : STD_LOGIC;
+signal branch, branchN, exception, jump, read_DATA_MEM : STD_LOGIC;
 signal sel_BREG_WD, sel_BREG_WR, sel_ULA_opB, sel_ULA_opB2 : STD_LOGIC;
 signal ULA_overflow, ULA_zero : STD_LOGIC;
 signal write_BREG, write_DATA_MEM : STD_LOGIC;
 
 signal instruction_type : STD_LOGIC_VECTOR(TYPES_SIZE-1 downto 0);
 signal ULA_opcode : STD_LOGIC_VECTOR(OPCODE_SIZE-1 downto 0);
-signal sel_JR,sel_shamt : STD_LOGIC;
+signal sel_JR, sel_shamt : STD_LOGIC;
 
 -- Data signals
 
@@ -213,7 +213,7 @@ begin
 		generic map(WSIZE => WSIZE)
 		port map(input1 => ULA_result, 
 					input2 => DATA_MEM_output,
-					input3 => instruction(15 downto 0)&x"0000",
+					input3 => sxt_imm,
 					input4 => PC_plus_4,
 					selector => (((jump and sel_BREG_WD) or sel_ULA_opB2) & (sel_BREG_WD and not(sel_ULA_opB2))),
 					output => BREG_WD);
@@ -250,7 +250,7 @@ begin
 		port map(input1 => BREG_D2, 
 					input2 => sxt_imm,
 					input3 => std_logic_vector(resize(unsigned(instruction(10 downto 6)), WSIZE)),
-					input4 => x"00000000",
+					input4 => std_logic_vector(to_unsigned(0, WSIZE)),
 					selector => (sel_shamt & sel_ULA_opB),
 					output => ULA_opB);	
 
@@ -268,10 +268,10 @@ begin
 
 	ULA_Controller: MIPS_ULA_Controller
 		port map(ALUop => instruction_type,
-				intFunct => instruction (5 downto 0),
-				ALU => ULA_opcode,
-				jr => sel_JR,
-				shamt => sel_shamt);
+					intFunct => instruction (5 downto 0),
+					ALU => ULA_opcode,
+					jr => sel_JR,
+					shamt => sel_shamt);
 					
 -- ULA (Arithmetic and Logic Unit):
 
