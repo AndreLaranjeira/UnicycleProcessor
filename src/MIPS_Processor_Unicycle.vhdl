@@ -54,6 +54,17 @@ architecture behavioral of MIPS_Processor_Unicycle is
 		  
 	end component;
 	
+	component Multiplexer4to1 is
+	
+		generic(WSIZE : natural);
+	
+		port(input1, input2 : in STD_LOGIC_VECTOR(WSIZE-1 downto 0);
+			  input3, input4 : in STD_LOGIC_VECTOR(WSIZE-1 downto 0);
+			  selector : in STD_LOGIC_VECTOR(1 downto 0);
+			  output : out STD_LOGIC_VECTOR(WSIZE-1 downto 0));
+		  
+	end component;	
+	
 	component NibbleDisplay is
 
 		port(nibble : in STD_LOGIC_VECTOR(3 downto 0);
@@ -96,7 +107,7 @@ architecture behavioral of MIPS_Processor_Unicycle is
 
 -- Control signals
 	
-signal branch, read_DATA_MEM : STD_LOGIC;
+signal branch, exception, jump, read_DATA_MEM : STD_LOGIC;
 signal sel_BREG_WD, sel_BREG_WR, sel_ULA_opB : STD_LOGIC;
 signal ULA_overflow, ULA_zero : STD_LOGIC;
 signal write_BREG, write_DATA_MEM : STD_LOGIC;
@@ -111,7 +122,9 @@ signal BREG_R1, BREG_R2, BREG_WR : STD_LOGIC_VECTOR(BREG_SIZE-1 downto 0);
 signal branch_ADDR : STD_LOGIC_VECTOR(WSIZE-1 downto 0);	
 signal BREG_D1, BREG_D2, BREG_WD : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 signal DATA_MEM_output : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
-signal instruction : STD_LOGIC_VECTOR(WSIZE-1 downto 0); 
+signal EPC : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
+signal instruction : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
+signal jump_ADDR : STD_LOGIC_VECTOR(WSIZE-1 downto 0);	 
 signal PC_input, PC_output : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 signal PC_plus_4, next_PC : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 signal sxt_imm, sxt_keys : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
@@ -123,6 +136,7 @@ begin
 	
 	BREG_R1 <= instruction(25 downto 21);
 	BREG_R2 <= instruction(20 downto 16);
+	jump_ADDR <= (PC_plus_4(WSIZE-1 downto WSIZE-4) & instruction(25 downto 0) & "00");
 	sxt_imm <= std_logic_vector(resize(signed(instruction(15 downto 0)), WSIZE));
 	sxt_keys <= std_logic_vector(resize(signed(keys & "00"), WSIZE));
 
@@ -174,18 +188,22 @@ begin
 					selector => sel_BREG_WR,
 					output => BREG_WR);
 	
-	Mux_PC_input : Multiplexer2to1
+	Mux_PC_input : Multiplexer4to1
 		generic map(WSIZE => WSIZE)
 		port map(input1 => next_PC,
-					input2 => sxt_keys,
-					selector => keys_input,
+					input2 => EPC,
+					input3 => sxt_keys,
+					input4 => sxt_keys,
+					selector => (keys_input & exception),
 					output => PC_input);
 	
-	Mux_next_PC : Multiplexer2to1
+	Mux_next_PC : Multiplexer4to1
 		generic map(WSIZE => WSIZE)
 		port map(input1 => PC_plus_4, 
 					input2 => branch_ADDR,
-					selector => (branch and ULA_zero),
+					input3 => jump_ADDR,
+					input4 => (others => '0'),
+					selector => (jump & (branch and ULA_zero)),
 					output => next_PC);
 				
 	Mux_ULA_opB : Multiplexer2to1
@@ -233,5 +251,5 @@ end behavioral;
 
 -- TODO list:
 --		Finish behavioral architecture of MIPS_Processor_Unicycle.
---		Replace 2 PC related Mux2to1 with 1 Mux4to1.
+--		Replace 2 PC related Mux2to1 with 1 Mux4to1 and include jump_ADDR.
 --		Add generics for every component length variable. 
