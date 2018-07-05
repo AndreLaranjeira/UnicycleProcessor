@@ -37,8 +37,9 @@ architecture behavioral of MIPS_Processor_Unicycle is
 	component MIPS_Controller is
 	
 		port(inst_opcode, inst_functor : in std_logic_vector(5 downto 0);
-			  regDST, jump, branch, branchN, memRead, memToReg : out std_logic; 
-			  memWrite, ALUsrc, ALUsrc2, regWrite : out std_logic;
+			  jump, branch, branchN, memRead : out std_logic; 
+			  memWrite, ALUsrc, regWrite : out std_logic;
+			  regDST, memToReg : out std_logic_vector (1 downto 0);
 			  eret, unknown_opcode : out std_logic;
 			  ALUop : out std_logic_vector (2 downto 0));
 		  
@@ -148,8 +149,9 @@ architecture behavioral of MIPS_Processor_Unicycle is
 -- Control signals
 	
 signal branch, branchN, eret, exception, jump, read_DATA_MEM : STD_LOGIC;
-signal sel_BREG_WD, sel_BREG_WR, sel_JR, sel_shamt : STD_LOGIC;
-signal sel_ULA_opB, sel_ULA_opB2 : STD_LOGIC;
+signal sel_JR, sel_shamt : STD_LOGIC;
+signal sel_BREG_WD, sel_BREG_WR : STD_LOGIC_VECTOR(1 downto 0);
+signal sel_ULA_opB : STD_LOGIC;
 signal ULA_overflow, ULA_zero : STD_LOGIC;
 signal unknown_opcode : STD_LOGIC;
 signal write_BREG, write_DATA_MEM : STD_LOGIC;
@@ -258,7 +260,7 @@ begin
 					input2 => DATA_MEM_output,
 					input3 => sxt_imm,
 					input4 => PC_plus_4,
-					selector => (((jump and sel_BREG_WD) or sel_ULA_opB2) & (sel_BREG_WD and not(sel_ULA_opB2))),
+					selector => sel_BREG_WD,
 					output => BREG_WD);
 
 	Mux_BREG_WR: Multiplexer4to1
@@ -267,7 +269,7 @@ begin
 					input2 => instruction(15 downto 11),
 					input3 => "00000",
 					input4 => "11111",
-					selector => (jump and sel_BREG_WD) & sel_BREG_WR,
+					selector => sel_BREG_WR,
 					output => BREG_WR);
 	
 	Mux_nibble_codes: Multiplexer4to1
