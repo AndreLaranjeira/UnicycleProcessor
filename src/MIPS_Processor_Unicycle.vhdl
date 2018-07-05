@@ -39,6 +39,14 @@ architecture behavioral of MIPS_Processor_Unicycle is
 		  
 	end component;
 
+	component MIPS_ULA_Controller is
+	
+		port(ALUop : in std_logic_vector(2 downto 0);
+			intFunct : in std_logic(5 downto 0);
+			ALU out std_logic_vector (3 downto 0));
+		  
+	end component;
+
 	component MIPS_ULA is
 
 		generic(WSIZE : natural);
@@ -115,7 +123,7 @@ architecture behavioral of MIPS_Processor_Unicycle is
 -- Control signals
 	
 signal branch, exception, jump, read_DATA_MEM : STD_LOGIC;
-signal sel_BREG_WD, sel_BREG_WR, sel_ULA_opB : STD_LOGIC;
+signal sel_BREG_WD, sel_BREG_WR, sel_ULA_opB, sel_ULA_opB2, sel_signExt : STD_LOGIC;
 signal ULA_overflow, ULA_zero : STD_LOGIC;
 signal write_BREG, write_DATA_MEM : STD_LOGIC;
 
@@ -161,11 +169,18 @@ begin
 					write_data => BREG_WD,
 					write_enable => write_BREG);
 
+
+					port(int_opcode : in std_logic_vector(5 downto 0);
+        regDST, jump, branch, branchN, memRead, singExt, memToReg, memWrite, ALUsrc, ALUsrc2, regWrite : out std_logic;
+		ALUop : out std_logic_vector (2 downto 0));
+
 -- Controllers:
 					
 	Controller : MIPS_Controller
 		port map(ALUop => instruction_type,
 					ALUsrc => sel_ULA_opB,
+					ALUsrc2 => sel_ULA_opB2,
+					singExt => sel_signExt,
 					branch => branch,
 					int_opcode => instruction(31 downto 26),
 					jump => jump,
@@ -242,6 +257,15 @@ begin
 					data => PC_input,
 					output => PC_output,
 					write_enable => run);
+
+					entity MIPS_ULA_Controller is
+
+-- ULA Controller:
+
+	ULA_Controller: MIPS_ULA_Controller
+		port map(ALUop => instruction_type;
+				intFunct => instruction (5 downto 0);
+				ALU => ULA_opcode);
 					
 -- ULA (Arithmetic and Logic Unit):
 
