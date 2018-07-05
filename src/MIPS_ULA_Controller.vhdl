@@ -46,61 +46,99 @@ architecture behavioral of MIPS_ULA_Controller is
     begin
     Operation: process(ALUop, intFunct)
 	begin
-        jr <= '0';
-        shamt <='0';
+      
 	    case ALUop is
             when "000" =>
                 ALU <= "0010";
+					 jr <= '0';
+					 shamt <='0';        
             when "001" =>
                 ALU <= "0100";
+					 jr <= '0';
+					 shamt <='0';
             when "010" =>
                 ALU <= "0000";
+					 jr <= '0';
+					 shamt <='0';
             when "011" =>
                 ALU <= "0001";
+					 jr <= '0';
+					 shamt <='0';
             when "100" =>
                 case intFunct is
                     when "101000"=> -- AND
                         ALU <= "0000";
+								jr <= '0';
+								shamt <='0';
                     when "100101"=> -- OR
                         ALU <= "0001";
+								jr <= '0';
+								shamt <='0';
                     when "100000"=> -- ADD
                         ALU <= "0010";
+								jr <= '0';
+								shamt <='0';
                     when "100001"=> -- ADDU
                         ALU <= "0011";
+								jr <= '0';
+								shamt <='0';
                     when "001000"=> -- JR
                         ALU <= "0000";
                         jr <= '1';
+								shamt <='0';
                     when "100010" => --SUB
                         ALU <= "0100";
+								jr <= '0';
+								shamt <='0';
                     when "100011" => --SUBU
                         ALU <= "0101";
+								jr <= '0';
+								shamt <='0';
                     when "101010" => --SLT
                         ALU <= "0110";
+								jr <= '0';
+								shamt <='0';
                     when "101011" => --SLTU
                         ALU <= "0111";
-                    
+								jr <= '0';
+								shamt <='0';
                     when "100111" => --NOR
                         ALU <= "1000";
+								jr <= '0';
+								shamt <='0';
                     when "100110" => --xor
                         ALU <= "1001";
+								jr <= '0';
+								shamt <='0';
                     when "000000" => --sll
                         ALU <= "1010";
+								jr <= '0';
                         shamt <='1';
                     when "000010" => --srl
                         ALU <= "1011";
+								jr <= '0';
                         shamt <='1';
                     when "000011" => --sra
                         ALU <= "1100";
+								jr <= '0';
                         shamt <='1';
                     when others => 
                         ALU <= "1111";
+								jr <= '0';
+								shamt <='0';
                 end case;
             when "101" =>
                 ALU <= "0011";
+					 jr <= '0';
+					 shamt <='0';
             when "110" =>
                 ALU <= "0110";
+					 jr <= '0';
+					 shamt <='0';
             when others =>
-                ALU <= "1111";
+                ALU <= "1001";
+					 jr <= '0';
+					 shamt <='0';
         end case;
     end process;
 

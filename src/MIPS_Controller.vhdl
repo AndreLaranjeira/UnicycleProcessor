@@ -20,7 +20,7 @@ end MIPS_Controller;
 -- 100 -> tipo R
 -- 101 -> soma unsigned
 -- 110 -> slt
--- 111 -> unknown opcode
+-- 111 -> Xor
 
 architecture behavioral of MIPS_Controller is
 begin
@@ -73,7 +73,7 @@ begin
 				unknown_opcode <= '0';
 				ALUop <= "101";
 			
-         when "000001" =>	--j
+         when "000010" =>	--j
 				regDST <= '0';
 				jump <= '1';
 				branch <= '0';
@@ -133,6 +133,36 @@ begin
 				unknown_opcode <= '0';
 				ALUop <= "010";
 
+         when "001101" =>	--ORi
+				regDST <= '0';
+				jump <= '0';
+				branch <= '0';
+				branchN <= '0';
+				memRead <= '0';
+				memToReg <= '0';
+				memWrite <= '0';
+				ALUsrc <= '1';
+				ALUsrc2 <= '0';
+				regWrite <= '1';
+				eret <= '0';				
+				unknown_opcode <= '0';
+				ALUop <= "011";
+		
+		when "001110" =>	--XorI
+				regDST <= '0';
+				jump <= '0';
+				branch <= '0';
+				branchN <= '0';
+				memRead <= '0';
+				memToReg <= '0';
+				memWrite <= '0';
+				ALUsrc <= '1';
+				ALUsrc2 <= '0';
+				regWrite <= '1';
+				eret <= '0';				
+				unknown_opcode <= '0';
+				ALUop <= "111";					
+				
 			when "000100" =>	--BEQ
 				regDST <= '0';
 				jump <= '0';
@@ -178,7 +208,7 @@ begin
 				unknown_opcode <= '0';
 				ALUop <= "000";
 			
-			when "100011" =>	--LW
+			when "010011" =>	--LW
 				regDST <= '0';
 				jump <= '0';
 				branch <= '0';

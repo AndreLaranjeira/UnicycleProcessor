@@ -180,12 +180,12 @@ begin
 
 	BREG: MIPS_BREG
 		generic map(WSIZE => WSIZE)
-		port map(clock => clock,
+		port map(clock => not(clock),
 					readADDR1 => BREG_R1,
 					readADDR2 => BREG_R2,
 					Reg1 => BREG_D1,
 					Reg2 => BREG_D2,
-					reset => reset,
+					reset => not(reset),
 					writeADDR => BREG_WR,
 					write_data => BREG_WD,
 					write_enable => write_BREG);
@@ -228,7 +228,7 @@ begin
 	Data_RAM: RAM 
 		generic map(MIF_FILE => MIF_FILE_DATA)
 		port map(address => ULA_result(7 downto 0),
-					clock => not(clock),
+					clock => clock,
 					data => BREG_D2,
 					wren => write_DATA_MEM,
 					q => DATA_MEM_output);
@@ -236,7 +236,7 @@ begin
 	Instruction_RAM: RAM 
 		generic map(MIF_FILE => MIF_FILE_INSTRUCTION)
 		port map(address => PC_output(9 downto 2),
-					clock => clock,
+					clock => not(clock),
 					data => x"00000000",
 					wren => '0',
 					q => instruction);
@@ -365,18 +365,18 @@ begin
 
 	EPC: ProgramCounter
 		generic map(WSIZE => WSIZE)
-		port map(clock => clock,
+		port map(clock => not(clock),
 					data => PC_plus_4,
 					output => EPC_output,
-					reset => reset,
+					reset => not(reset),
 					write_enable => exception);
 					
 	PC: ProgramCounter
 		generic map(WSIZE => WSIZE)
-		port map(clock => clock,
+		port map(clock => not(clock),
 					data => PC_input,
 					output => PC_output,
-					reset => reset,
+					reset => not(reset),
 					write_enable => run);
 					
 -- ULA (Arithmetic and Logic Unit):
