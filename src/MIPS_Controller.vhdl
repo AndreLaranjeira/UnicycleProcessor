@@ -178,6 +178,36 @@ begin
 				unknown_opcode <= '0';
 				ALUop <= "000";
 			
+			when "100011" =>	--LW
+				regDST <= '0';
+				jump <= '0';
+				branch <= '0';
+				branchN <= '0';
+				memRead <= '1';
+				memToReg <= '1';
+				memWrite <= '0';
+				ALUsrc <= '1';
+				ALUsrc2 <= '0';
+				regWrite <= '1';
+				eret <= '0';				
+				unknown_opcode <= '0';
+				ALUop <= "000";
+
+			when "101011" =>	--SW
+				regDST <= '0';
+				jump <= '0';
+				branch <= '0';
+				branchN <= '0';
+				memRead <= '0';
+				memToReg <= '0';
+				memWrite <= '1';
+				ALUsrc <= '1';
+				ALUsrc2 <= '0';
+				regWrite <= '0';
+				eret <= '0';				
+				unknown_opcode <= '0';
+				ALUop <= "000";	
+	
 			when "010000" =>	-- Coprocessor 0
 			
 				case inst_functor is
