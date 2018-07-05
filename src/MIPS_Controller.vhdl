@@ -19,14 +19,15 @@ end MIPS_Controller;
 -- 100 -> tipo R
 -- 101 -> soma unsigned
 -- 110 -> slt
+-- 111 -> unknown opcode
 
 architecture behavioral of MIPS_Controller is
 begin
     Operation: process(int_opcode)
 	    begin
 	    case int_opcode is
-			 --tipo R
-			when "000000" =>
+			
+			when "000000" =>	--tipo R
 				regDST <= '1';
 				jump <= '0';
 				branch <= '0';
@@ -39,8 +40,8 @@ begin
 				regWrite <= '1';
 				unknown_opcode <= '0';
 				ALUop <= "100";
-         -- addi
-         when "001000" =>
+         
+         when "001000" =>	--addi
 				regDST <= '0';
 				jump <= '0';
 				branch <= '0';
@@ -53,8 +54,8 @@ begin
 				regWrite <= '1';
 				unknown_opcode <= '0';
 				ALUop <= "000";
-         --addiu
-         when "001001" =>
+         
+         when "001001" =>	--addiu
 				regDST <= '0';
 				jump <= '0';
 				branch <= '0';
@@ -67,8 +68,8 @@ begin
 				regWrite <= '1';
 				unknown_opcode <= '0';
 				ALUop <= "101";
-			--j
-         when "000001" =>
+			
+         when "000001" =>	--j
 				regDST <= '0';
 				jump <= '1';
 				branch <= '0';
@@ -81,8 +82,8 @@ begin
 				regWrite <= '0';
 				unknown_opcode <= '0';
 				ALUop <= "000";
-         --jal
-         when "000011" => --usar jump e regwrite sendo 1 para registrador de escrita ser $31
+
+         when "000011" => 	--jal (usar jump e regwrite sendo 1 para registrador de escrita ser $31)
 				regDST <= '0';
 				jump <= '1';
 				branch <= '0';
@@ -95,8 +96,8 @@ begin
 				regWrite <= '1';
 				unknown_opcode <= '0';
 				ALUop <= "000";
-            --slti
-         when "001010" =>
+            
+         when "001010" =>	--slti
 				regDST <= '0';
 				jump <= '0';
 				branch <= '0';
@@ -110,7 +111,7 @@ begin
 				unknown_opcode <= '0';
 				ALUop <= "110";
 				
-         when "001100" => --ANDi
+         when "001100" =>	--ANDi
 				regDST <= '0';
 				jump <= '0';
 				branch <= '0';
@@ -124,7 +125,7 @@ begin
 				unknown_opcode <= '0';
 				ALUop <= "010";
 
-			when "000100" => --BEQ
+			when "000100" =>	--BEQ
 				regDST <= '0';
 				jump <= '0';
 				branch <= '1';
@@ -138,7 +139,7 @@ begin
 				unknown_opcode <= '0';
 				ALUop <= "001";
 	
-			when "000101" => --BNE
+			when "000101" =>	--BNE
 				regDST <= '0';
 				jump <= '0';
 				branch <= '0';
@@ -152,7 +153,7 @@ begin
 				unknown_opcode <= '0';
 				ALUop <= "001";
 		
-			when "001111" => --LUI
+			when "001111" =>	--LUI
 				regDST <= '0';
 				jump <= '0';
 				branch <= '0';
@@ -166,7 +167,7 @@ begin
 				unknown_opcode <= '0';
 				ALUop <= "000";
 				
-			when others =>
+			when others =>	-- Unknown opcode
 				regDST <= '0';
 				jump <= '0';
 				branch <= '0';

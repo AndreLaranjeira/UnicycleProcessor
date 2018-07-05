@@ -39,7 +39,8 @@ end MIPS_ULA_Controller;
 -- 011 -> or
 -- 100 -> tipo R
 -- 101 -> soma unsigned
--- 111 -> slt
+-- 110 -> slt
+-- 111 -> unknown opcode 
 
 architecture behavioral of MIPS_ULA_Controller is
     begin
