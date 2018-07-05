@@ -208,7 +208,7 @@ begin
 				unknown_opcode <= '0';
 				ALUop <= "000";
 			
-			when "010011" =>	--LW
+			when "100011" =>	--LW
 				regDST <= '0';
 				jump <= '0';
 				branch <= '0';
