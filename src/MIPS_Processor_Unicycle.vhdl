@@ -34,9 +34,10 @@ architecture behavioral of MIPS_Processor_Unicycle is
 	
 	component MIPS_Controller is
 	
-		port(int_opcode : in std_logic_vector(5 downto 0);
+		port(inst_opcode, inst_functor : in std_logic_vector(5 downto 0);
 			  regDST, jump, branch, branchN, memRead, memToReg : out std_logic; 
-			  memWrite, ALUsrc, ALUsrc2, regWrite, unknown_opcode : out std_logic;
+			  memWrite, ALUsrc, ALUsrc2, regWrite : out std_logic;
+			  eret, unknown_opcode : out std_logic;
 			  ALUop : out std_logic_vector (2 downto 0));
 		  
 	end component;
@@ -136,7 +137,7 @@ architecture behavioral of MIPS_Processor_Unicycle is
 
 -- Control signals
 	
-signal branch, branchN, exception, jump, read_DATA_MEM : STD_LOGIC;
+signal branch, branchN, eret, exception, jump, read_DATA_MEM : STD_LOGIC;
 signal sel_BREG_WD, sel_BREG_WR, sel_JR, sel_shamt : STD_LOGIC;
 signal sel_ULA_opB, sel_ULA_opB2 : STD_LOGIC;
 signal ULA_overflow, ULA_zero : STD_LOGIC;
@@ -193,7 +194,9 @@ begin
 					ALUsrc2 => sel_ULA_opB2,
 					branch => branch,
 					branchN => branchN,
-					int_opcode => instruction(31 downto 26),
+					eret => eret,
+					inst_functor => instruction(5 downto 0),
+					inst_opcode => instruction(31 downto 26),
 					jump => jump,
 					memRead => read_DATA_MEM,
 					memToReg => sel_BREG_WD,
@@ -258,9 +261,9 @@ begin
 		generic map(WSIZE => WSIZE)
 		port map(input1 => next_PC,
 					input2 => exception_ADDR,
-					input3 => sxt_keys,
+					input3 => EPC_output,
 					input4 => sxt_keys,
-					selector => (keys_input & exception),
+					selector => ((keys_input or eret) & (keys_input or exception)),
 					output => PC_input);
 	
 	Mux_next_PC: Multiplexer4to1
@@ -327,4 +330,5 @@ end behavioral;
 -- TODO list:
 --		Finish behavioral architecture of MIPS_Processor_Unicycle.
 --		Implement ERET instruction.
+--		Merge ULA_Controller into Controller.
 --		Add generics for every component length variable. 
