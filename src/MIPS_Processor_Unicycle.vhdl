@@ -31,6 +31,13 @@ architecture behavioral of MIPS_Processor_Unicycle is
 			  reg1, reg2 : out std_logic_vector(WSIZE-1 downto 0));
 		  
 	end component;
+	
+	component MIPS_Controller is
+	
+		port(int_opcode : in std_logic_vector(5 downto 0);
+			  regDST, jump, branch, memRead, memToReg, ALUop, memWrite, ALUsrc, regWrite : out std_logic);
+		  
+	end component;
 
 	component MIPS_ULA is
 
@@ -154,6 +161,20 @@ begin
 					write_data => BREG_WD,
 					write_enable => write_BREG);
 
+-- Controllers:
+					
+	Controller : MIPS_Controller
+		port map(ALUop => instruction_type,
+					ALUsrc => sel_ULA_opB,
+					branch => branch,
+					int_opcode => instruction(31 downto 26),
+					jump => jump,
+					memRead => read_DATA_MEM,
+					memToReg => sel_BREG_WD,
+					memWrite => write_DATA_MEM,
+					regDST => sel_BREG_WR,
+					regWrite => write_BREG);
+					
 -- Memory units (RAMs):
 
 	Data_RAM : RAM 
