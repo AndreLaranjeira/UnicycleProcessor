@@ -45,7 +45,8 @@ architecture behavioral of MIPS_Processor_Unicycle is
 		port(ALUop : in std_logic_vector(2 downto 0);
         intFunct : in std_logic_vector(5 downto 0);
 	    ALU : out std_logic_vector (3 downto 0);
-        jr : out std_logic);
+        jr : out std_logic;
+        shamt : out std_logic);
 		  
 	end component;
 
@@ -131,7 +132,7 @@ signal write_BREG, write_DATA_MEM : STD_LOGIC;
 
 signal instruction_type : STD_LOGIC_VECTOR(TYPES_SIZE-1 downto 0);
 signal ULA_opcode : STD_LOGIC_VECTOR(OPCODE_SIZE-1 downto 0);
-signal sel_JR : STD_LOGIC;
+signal sel_JR,sel_shamt : STD_LOGIC;
 
 -- Data signals
 
@@ -244,11 +245,13 @@ begin
 					selector => ((jump or sel_JR) & (((branchN and not(ULA_zero)) or (branch and ULA_zero)) or sel_JR)),
 					output => next_PC);
 				
-	Mux_ULA_opB : Multiplexer2to1
+	Mux_ULA_opB : Multiplexer4to1
 		generic map(WSIZE => WSIZE)
 		port map(input1 => BREG_D2, 
 					input2 => sxt_imm,
-					selector => sel_ULA_opB,
+					input3 => std_logic_vector(resize(unsigned(instruction(10 downto 6)), WSIZE)),
+					input4 => "x00000000",
+					selector => (sel_shamt & sel_ULA_opB),
 					output => ULA_opB);	
 
 -- PC (Program counter):
@@ -267,7 +270,8 @@ begin
 		port map(ALUop => instruction_type,
 				intFunct => instruction (5 downto 0),
 				ALU => ULA_opcode,
-				jr => sel_JR);
+				jr => sel_JR)
+				shamt => sel_shamt;
 					
 -- ULA (Arithmetic and Logic Unit):
 
