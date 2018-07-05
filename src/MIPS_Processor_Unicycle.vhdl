@@ -250,7 +250,7 @@ begin
 		port map(input1 => BREG_D2, 
 					input2 => sxt_imm,
 					input3 => std_logic_vector(resize(unsigned(instruction(10 downto 6)), WSIZE)),
-					input4 => "x00000000",
+					input4 => x"00000000",
 					selector => (sel_shamt & sel_ULA_opB),
 					output => ULA_opB);	
 
@@ -270,8 +270,8 @@ begin
 		port map(ALUop => instruction_type,
 				intFunct => instruction (5 downto 0),
 				ALU => ULA_opcode,
-				jr => sel_JR)
-				shamt => sel_shamt;
+				jr => sel_JR,
+				shamt => sel_shamt);
 					
 -- ULA (Arithmetic and Logic Unit):
 

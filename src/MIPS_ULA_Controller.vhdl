@@ -46,7 +46,7 @@ architecture behavioral of MIPS_ULA_Controller is
     Operation: process(ALUop, intFunct)
 	begin
         jr <= '0';
-        shamt <'0';
+        shamt <='0';
 	    case ALUop is
             when "000" =>
                 ALU <= "0010";
