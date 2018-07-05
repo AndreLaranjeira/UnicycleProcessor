@@ -108,6 +108,7 @@ architecture behavioral of MIPS_Processor_Unicycle is
 		generic(WSIZE : natural);
 	
 		port(clock : in STD_LOGIC;
+			  reset : in STD_LOGIC;
 			  write_enable : in STD_LOGIC;
 			  data : in STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 			  output : out STD_LOGIC_VECTOR(WSIZE-1 downto 0));
@@ -138,7 +139,7 @@ architecture behavioral of MIPS_Processor_Unicycle is
 
 -- Control signals
 	
-signal branch, branchN, eret, exception, jump : STD_LOGIC;
+signal branch, branchN, eret, exception, jump, read_DATA_MEM : STD_LOGIC;
 signal sel_BREG_WD, sel_BREG_WR, sel_JR, sel_shamt : STD_LOGIC;
 signal sel_ULA_opB, sel_ULA_opB2 : STD_LOGIC;
 signal ULA_overflow, ULA_zero : STD_LOGIC;
@@ -367,6 +368,7 @@ begin
 		port map(clock => clock,
 					data => PC_plus_4,
 					output => EPC_output,
+					reset => reset,
 					write_enable => exception);
 					
 	PC: ProgramCounter
@@ -374,6 +376,7 @@ begin
 		port map(clock => clock,
 					data => PC_input,
 					output => PC_output,
+					reset => reset,
 					write_enable => run);
 					
 -- ULA (Arithmetic and Logic Unit):
