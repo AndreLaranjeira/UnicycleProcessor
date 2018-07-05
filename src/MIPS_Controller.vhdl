@@ -35,7 +35,7 @@ begin
 			ALUsrc <= '0';
 			ALUsrc2 <= '0';
 			regWrite <= '1';
-			ALUop <= '100';
+			ALUop <= "100";
             -- addi
            	when "001000" =>
 			regDST <= '0';
@@ -112,7 +112,7 @@ begin
 			ALUsrc <= '1';
 			ALUsrc2 <= '0';
 			regWrite <= '1';
-			ALUop <= '010';
+			ALUop <= "010";
 
 		when "000100" => --BEQ
 			regDST <= '0';
@@ -125,7 +125,7 @@ begin
 			ALUsrc <= '0';
 			ALUsrc2 <= '0';
 			regWrite <= '0';
-			ALUop <= '001';
+			ALUop <= "001";
 	
 		when "000101" => --BNE
 			regDST <= '0';
@@ -138,7 +138,7 @@ begin
 			ALUsrc <= '0';
 			ALUsrc2 <= '0';
 			regWrite <= '0';
-			ALUop <= '001';
+			ALUop <= "001";
 		
 		when "001111" => --LUI
 			regDST <= '0';
@@ -151,7 +151,7 @@ begin
 			ALUsrc <= '0';
 			ALUsrc2 <= '1';
 			regWrite <= '1';
-			ALUop <= '000';
+			ALUop <= "000";
 		when others =>
 			regDST <= '0';
 			jump <= '0';
@@ -163,7 +163,7 @@ begin
 			ALUsrc <= '0';
 			ALUsrc2 <= '0';
 			regWrite <= '0';
-			ALUop <= '111';
+			ALUop <= "111";
 		end case;
 	end process;
 end behavioral;

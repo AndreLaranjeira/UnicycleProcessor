@@ -5,7 +5,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity MIPS_ULA_Controller is
 	
 	port(ALUop : in std_logic_vector(2 downto 0);
-        intFunct : in std_logic(5 downto 0);
+        intFunct : in std_logic_vector(5 downto 0);
 	    ALU : out std_logic_vector (3 downto 0);
         jr : out std_logic);
 		  
@@ -47,13 +47,13 @@ architecture behavioral of MIPS_ULA_Controller is
         jr <= '0';
 	    case ALUop is
             when "000" =>
-                ALU <= "0010"
+                ALU <= "0010";
             when "001" =>
-                ALU <= "0100"
+                ALU <= "0100";
             when "010" =>
-                ALU <= "0000"
+                ALU <= "0000";
             when "011" =>
-                ALU <= "0001"
+                ALU <= "0001";
             when "100" =>
                 case intFunct is
                     when "101000"=> -- AND
@@ -87,16 +87,14 @@ architecture behavioral of MIPS_ULA_Controller is
                     
                     when "000011" => --sra
                         ALU <= "1100";
-                    when "000010" => --rtr
-                        ALU <= "1101";
 
                     when others => 
                         ALU <= "1111";
                 end case;
             when "101" =>
-                ALU <= "0011"
+                ALU <= "0011";
             when "110" =>
-                ALU <= "0110"
+                ALU <= "0110";
             when others =>
                 ALU <= "1111";
         end case;

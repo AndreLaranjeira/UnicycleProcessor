@@ -8,7 +8,7 @@ entity MIPS_Processor_Unicycle is
 			  MIF_FILE_INSTRUCTION : string := "mif/Instructions.mif";
 			  BREG_SIZE : natural := 5;
 			  OPCODE_SIZE : natural := 4;
-			  TYPES_SIZE : natural := 2;
+			  TYPES_SIZE : natural := 3;
 			  WSIZE : natural := 32);
 	
 	port(clock, keys_input, reset, run : in STD_LOGIC;
@@ -35,15 +35,17 @@ architecture behavioral of MIPS_Processor_Unicycle is
 	component MIPS_Controller is
 	
 		port(int_opcode : in std_logic_vector(5 downto 0);
-			  regDST, jump, branch, memRead, memToReg, ALUop, memWrite, ALUsrc, regWrite : out std_logic);
+        regDST, jump, branch, branchN, memRead, memToReg, memWrite, ALUsrc, ALUsrc2, regWrite : out std_logic;
+		ALUop : out std_logic_vector (2 downto 0));
 		  
 	end component;
 
 	component MIPS_ULA_Controller is
 	
 		port(ALUop : in std_logic_vector(2 downto 0);
-			intFunct : in std_logic(5 downto 0);
-			ALU out std_logic_vector (3 downto 0));
+        intFunct : in std_logic_vector(5 downto 0);
+	    ALU : out std_logic_vector (3 downto 0);
+        jr : out std_logic);
 		  
 	end component;
 
@@ -122,7 +124,7 @@ architecture behavioral of MIPS_Processor_Unicycle is
 
 -- Control signals
 	
-signal branch, exception, jump, read_DATA_MEM : STD_LOGIC;
+signal branch,branchN, exception, jump, read_DATA_MEM : STD_LOGIC;
 signal sel_BREG_WD, sel_BREG_WR, sel_ULA_opB, sel_ULA_opB2 : STD_LOGIC;
 signal ULA_overflow, ULA_zero : STD_LOGIC;
 signal write_BREG, write_DATA_MEM : STD_LOGIC;
@@ -170,11 +172,6 @@ begin
 					write_data => BREG_WD,
 					write_enable => write_BREG);
 
-
-					port(int_opcode : in std_logic_vector(5 downto 0);
-        regDST, jump, branch, branchN, memRead, singExt, memToReg, memWrite, ALUsrc, ALUsrc2, regWrite : out std_logic;
-		ALUop : out std_logic_vector (2 downto 0));
-
 -- Controllers:
 					
 	Controller : MIPS_Controller
@@ -182,6 +179,7 @@ begin
 					ALUsrc => sel_ULA_opB,
 					ALUsrc2 => sel_ULA_opB2,
 					branch => branch,
+					branchN => branchN,
 					int_opcode => instruction(31 downto 26),
 					jump => jump,
 					memRead => read_DATA_MEM,
@@ -216,8 +214,8 @@ begin
 					input2 => DATA_MEM_output,
 					input3 => instruction(15 downto 0)&x"0000",
 					input4 => PC_plus_4,
-					selector => ((jump and sel_BREG_WD) or sel_ULA_opB2) & (sel_BREG_WD and not(sel_ULA_opB2)),
-					output => BREG_WD));
+					selector => (((jump and sel_BREG_WD) or sel_ULA_opB2) & (sel_BREG_WD and not(sel_ULA_opB2))),
+					output => BREG_WD);
 
 	Mux_BREG_WR : Multiplexer4to1
 		generic map(WSIZE => BREG_SIZE)
@@ -262,14 +260,13 @@ begin
 					output => PC_output,
 					write_enable => run);
 
-					entity MIPS_ULA_Controller is
 
 -- ULA Controller:
 
 	ULA_Controller: MIPS_ULA_Controller
-		port map(ALUop => instruction_type;
-				intFunct => instruction (5 downto 0);
-				ALU => ULA_opcode
+		port map(ALUop => instruction_type,
+				intFunct => instruction (5 downto 0),
+				ALU => ULA_opcode,
 				jr => sel_JR);
 					
 -- ULA (Arithmetic and Logic Unit):
