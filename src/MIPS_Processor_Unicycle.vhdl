@@ -28,7 +28,7 @@ architecture behavioral of MIPS_Processor_Unicycle is
 			  readADDR1, readADDR2 : in std_logic_vector(4 downto 0);
 			  writeADDR : in std_logic_vector(4 downto 0);
 			  write_data : in std_logic_vector(WSIZE-1 downto 0);
-			  reg1, reg2 : out std_logic_vector(WSIZE-1 downto 0));
+			  Reg1, Reg2 : out std_logic_vector(WSIZE-1 downto 0));
 		  
 	end component;
 	
@@ -123,12 +123,13 @@ architecture behavioral of MIPS_Processor_Unicycle is
 -- Control signals
 	
 signal branch, exception, jump, read_DATA_MEM : STD_LOGIC;
-signal sel_BREG_WD, sel_BREG_WR, sel_ULA_opB, sel_ULA_opB2, sel_signExt : STD_LOGIC;
+signal sel_BREG_WD, sel_BREG_WR, sel_ULA_opB, sel_ULA_opB2 : STD_LOGIC;
 signal ULA_overflow, ULA_zero : STD_LOGIC;
 signal write_BREG, write_DATA_MEM : STD_LOGIC;
 
 signal instruction_type : STD_LOGIC_VECTOR(TYPES_SIZE-1 downto 0);
 signal ULA_opcode : STD_LOGIC_VECTOR(OPCODE_SIZE-1 downto 0);
+signal sel_JR : STD_LOGIC;
 
 -- Data signals
 
@@ -162,8 +163,8 @@ begin
 		port map(clock => clock,
 					readADDR1 => BREG_R1,
 					readADDR2 => BREG_R2,
-					reg1 => BREG_D1,
-					reg2 => BREG_D2,
+					Reg1 => BREG_D1,
+					Reg2 => BREG_D2,
 					reset => reset,
 					writeADDR => BREG_WR,
 					write_data => BREG_WD,
@@ -180,7 +181,6 @@ begin
 		port map(ALUop => instruction_type,
 					ALUsrc => sel_ULA_opB,
 					ALUsrc2 => sel_ULA_opB2,
-					singExt => sel_signExt,
 					branch => branch,
 					int_opcode => instruction(31 downto 26),
 					jump => jump,
@@ -210,18 +210,22 @@ begin
 					
 -- Multiplexers:
 
-	Mux_BREG_WD : Multiplexer2to1
+	Mux_BREG_WD : Multiplexer4to1
 		generic map(WSIZE => WSIZE)
 		port map(input1 => ULA_result, 
 					input2 => DATA_MEM_output,
-					selector => sel_BREG_WD,
-					output => BREG_WD);
+					input3 => instruction(15 downto 0)&x"0000",
+					input4 => PC_plus_4,
+					selector => ((jump and sel_BREG_WD) or sel_ULA_opB2) & (sel_BREG_WD and not(sel_ULA_opB2)),
+					output => BREG_WD));
 
-	Mux_BREG_WR : Multiplexer2to1
+	Mux_BREG_WR : Multiplexer4to1
 		generic map(WSIZE => BREG_SIZE)
 		port map(input1 => instruction(20 downto 16), 
 					input2 => instruction(15 downto 11),
-					selector => sel_BREG_WR,
+					input3 => "00000",
+					input4 => "11111",
+					selector => (jump and sel_BREG_WD) & sel_BREG_WR,
 					output => BREG_WR);
 	
 	Mux_PC_input : Multiplexer4to1
@@ -238,8 +242,8 @@ begin
 		port map(input1 => PC_plus_4, 
 					input2 => branch_ADDR,
 					input3 => jump_ADDR,
-					input4 => (others => '0'),
-					selector => (jump & (branch and ULA_zero)),
+					input4 => BREG_D1,
+					selector => ((jump or sel_JR) & (((branchN and not(ULA_zero)) or (branch and ULA_zero)) or sel_JR)),
 					output => next_PC);
 				
 	Mux_ULA_opB : Multiplexer2to1
@@ -265,7 +269,8 @@ begin
 	ULA_Controller: MIPS_ULA_Controller
 		port map(ALUop => instruction_type;
 				intFunct => instruction (5 downto 0);
-				ALU => ULA_opcode);
+				ALU => ULA_opcode
+				jr => sel_JR);
 					
 -- ULA (Arithmetic and Logic Unit):
 

@@ -6,7 +6,8 @@ entity MIPS_ULA_Controller is
 	
 	port(ALUop : in std_logic_vector(2 downto 0);
         intFunct : in std_logic(5 downto 0);
-	    ALU out std_logic_vector (3 downto 0));
+	    ALU : out std_logic_vector (3 downto 0);
+        jr : out std_logic);
 		  
 end MIPS_ULA_Controller;
 
@@ -43,6 +44,7 @@ architecture behavioral of MIPS_ULA_Controller is
     begin
     Operation: process(ALUop, intFunct)
 	begin
+        jr <= '0';
 	    case ALUop is
             when "000" =>
                 ALU <= "0010"
@@ -62,7 +64,9 @@ architecture behavioral of MIPS_ULA_Controller is
                         ALU <= "0010";
                     when "100001"=> -- ADDU
                         ALU <= "0011";
-
+                    when "001000"=> -- JR
+                        ALU <= "0000";
+                        jr <= '1';
                     when "100010" => --SUB
                         ALU <= "0100";
                     when "100011" => --SUBU

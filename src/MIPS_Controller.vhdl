@@ -5,7 +5,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity MIPS_Controller is
 	
 	port(int_opcode : in std_logic_vector(5 downto 0);
-        regDST, jump, branch, branchN, memRead, singExt, memToReg, memWrite, ALUsrc, ALUsrc2, regWrite : out std_logic;
+        regDST, jump, branch, branchN, memRead, memToReg, memWrite, ALUsrc, ALUsrc2, regWrite : out std_logic;
 		ALUop : out std_logic_vector (2 downto 0));
 		  
 end MIPS_Controller;
@@ -30,7 +30,6 @@ begin
 			branch <= '0';
 			branchN <= '0';
 			memRead <= '0';
-			singExt <= '0';
 			memToReg <= '0';
 			memWrite <= '0';
 			ALUsrc <= '0';
@@ -107,7 +106,6 @@ begin
 			jump <= '0';
 			branch <= '0';
 			branchN <= '0';
-			singExt <= '0';
 			memRead <= '0';
 			memToReg <= '0';
 			memWrite <= '0';
@@ -121,7 +119,6 @@ begin
 			jump <= '0';
 			branch <= '1';
 			branchN <= '0';
-			singExt <= '0';
 			memRead <= '0';
 			memToReg <= '0';
 			memWrite <= '0';
@@ -135,7 +132,6 @@ begin
 			jump <= '0';
 			branch <= '0';
 			branchN <= '1';
-			singExt <= '0';
 			memRead <= '0';
 			memToReg <= '0';
 			memWrite <= '0';
@@ -149,20 +145,18 @@ begin
 			jump <= '0';
 			branch <= '0';
 			branchN <= '0';
-			singExt <= '1';
 			memRead <= '0';
 			memToReg <= '0';
 			memWrite <= '0';
 			ALUsrc <= '0';
 			ALUsrc2 <= '1';
-			regWrite <= '0';
+			regWrite <= '1';
 			ALUop <= '000';
 		when others =>
 			regDST <= '0';
 			jump <= '0';
 			branch <= '0';
 			branchN <= '0';
-			singExt <= '0';
 			memRead <= '0';
 			memToReg <= '0';
 			memWrite <= '0';
