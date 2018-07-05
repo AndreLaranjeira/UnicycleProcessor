@@ -39,6 +39,16 @@ architecture behavioral of MIPS_Processor_Unicycle is
 			  ALUop : out std_logic_vector (2 downto 0));
 		  
 	end component;
+	
+	component MIPS_Exception_Controller is
+	
+		generic(WSIZE : natural);
+	
+		port(overflow, unknown_opcode : in STD_LOGIC;
+			  EPC : out STD_LOGIC_VECTOR(WSIZE-1 downto 0);
+			  exception : out STD_LOGIC);
+		  
+	end component;
 
 	component MIPS_ULA_Controller is
 	
@@ -126,13 +136,14 @@ architecture behavioral of MIPS_Processor_Unicycle is
 -- Control signals
 	
 signal branch, branchN, exception, jump, read_DATA_MEM : STD_LOGIC;
-signal sel_BREG_WD, sel_BREG_WR, sel_ULA_opB, sel_ULA_opB2 : STD_LOGIC;
+signal sel_BREG_WD, sel_BREG_WR, sel_JR, sel_shamt : STD_LOGIC;
+signal sel_ULA_opB, sel_ULA_opB2 : STD_LOGIC;
 signal ULA_overflow, ULA_zero : STD_LOGIC;
+signal unknown_opcode : STD_LOGIC;
 signal write_BREG, write_DATA_MEM : STD_LOGIC;
 
 signal instruction_type : STD_LOGIC_VECTOR(TYPES_SIZE-1 downto 0);
 signal ULA_opcode : STD_LOGIC_VECTOR(OPCODE_SIZE-1 downto 0);
-signal sel_JR, sel_shamt : STD_LOGIC;
 
 -- Data signals
 
@@ -161,7 +172,7 @@ begin
 
 -- BREG (Register bank):
 
-	BREG : MIPS_BREG
+	BREG: MIPS_BREG
 		generic map(WSIZE => WSIZE)
 		port map(clock => clock,
 					readADDR1 => BREG_R1,
@@ -175,7 +186,7 @@ begin
 
 -- Controllers:
 					
-	Controller : MIPS_Controller
+	Controller: MIPS_Controller
 		port map(ALUop => instruction_type,
 					ALUsrc => sel_ULA_opB,
 					ALUsrc2 => sel_ULA_opB2,
@@ -188,10 +199,24 @@ begin
 					memWrite => write_DATA_MEM,
 					regDST => sel_BREG_WR,
 					regWrite => write_BREG);
+	
+	Exception_Controller: MIPS_Exception_Controller
+		generic map(WSIZE => WSIZE)
+		port map(EPC => EPC,
+					exception => exception,
+					overflow => ULA_overflow,
+					unknown_opcode => unknown_opcode);
+	
+	ULA_Controller: MIPS_ULA_Controller
+		port map(ALUop => instruction_type,
+					intFunct => instruction (5 downto 0),
+					ALU => ULA_opcode,
+					jr => sel_JR,
+					shamt => sel_shamt);
 					
 -- Memory units (RAMs):
 
-	Data_RAM : RAM 
+	Data_RAM: RAM 
 		generic map(MIF_FILE => MIF_FILE_DATA)
 		port map(address => ULA_result(7 downto 0),
 					clock => clock,
@@ -199,7 +224,7 @@ begin
 					wren => write_DATA_MEM,
 					q => DATA_MEM_output);
 
-	Instruction_RAM : RAM 
+	Instruction_RAM: RAM 
 		generic map(MIF_FILE => MIF_FILE_INSTRUCTION)
 		port map(address => PC_output(9 downto 2),
 					clock => clock,
@@ -209,7 +234,7 @@ begin
 					
 -- Multiplexers:
 
-	Mux_BREG_WD : Multiplexer4to1
+	Mux_BREG_WD: Multiplexer4to1
 		generic map(WSIZE => WSIZE)
 		port map(input1 => ULA_result, 
 					input2 => DATA_MEM_output,
@@ -218,7 +243,7 @@ begin
 					selector => (((jump and sel_BREG_WD) or sel_ULA_opB2) & (sel_BREG_WD and not(sel_ULA_opB2))),
 					output => BREG_WD);
 
-	Mux_BREG_WR : Multiplexer4to1
+	Mux_BREG_WR: Multiplexer4to1
 		generic map(WSIZE => BREG_SIZE)
 		port map(input1 => instruction(20 downto 16), 
 					input2 => instruction(15 downto 11),
@@ -227,7 +252,7 @@ begin
 					selector => (jump and sel_BREG_WD) & sel_BREG_WR,
 					output => BREG_WR);
 	
-	Mux_PC_input : Multiplexer4to1
+	Mux_PC_input: Multiplexer4to1
 		generic map(WSIZE => WSIZE)
 		port map(input1 => next_PC,
 					input2 => EPC,
@@ -236,7 +261,7 @@ begin
 					selector => (keys_input & exception),
 					output => PC_input);
 	
-	Mux_next_PC : Multiplexer4to1
+	Mux_next_PC: Multiplexer4to1
 		generic map(WSIZE => WSIZE)
 		port map(input1 => PC_plus_4, 
 					input2 => branch_ADDR,
@@ -245,7 +270,7 @@ begin
 					selector => ((jump or sel_JR) & (((branchN and not(ULA_zero)) or (branch and ULA_zero)) or sel_JR)),
 					output => next_PC);
 				
-	Mux_ULA_opB : Multiplexer4to1
+	Mux_ULA_opB: Multiplexer4to1
 		generic map(WSIZE => WSIZE)
 		port map(input1 => BREG_D2, 
 					input2 => sxt_imm,
@@ -262,16 +287,6 @@ begin
 					data => PC_input,
 					output => PC_output,
 					write_enable => run);
-
-
--- ULA Controller:
-
-	ULA_Controller: MIPS_ULA_Controller
-		port map(ALUop => instruction_type,
-					intFunct => instruction (5 downto 0),
-					ALU => ULA_opcode,
-					jr => sel_JR,
-					shamt => sel_shamt);
 					
 -- ULA (Arithmetic and Logic Unit):
 
@@ -286,13 +301,13 @@ begin
 					
 -- Unsigned adders:
 					
-	UA_branch_ADDR : UnsignedAdder
+	UA_branch_ADDR: UnsignedAdder
 		generic map(WSIZE => WSIZE)
 		port map(input1 => BREG_D2, 
 					input2 => (sxt_imm(WSIZE-3 downto 0) & "00"),
 					output => branch_ADDR);	
 	
-	UA_PC_plus_4 : UnsignedAdder
+	UA_PC_plus_4: UnsignedAdder
 		generic map(WSIZE => WSIZE)
 		port map(input1 => std_logic_vector(to_unsigned(4, WSIZE)),
 					input2 => PC_output,
