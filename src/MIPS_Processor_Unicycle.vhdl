@@ -35,7 +35,8 @@ architecture behavioral of MIPS_Processor_Unicycle is
 	component MIPS_Controller is
 	
 		port(int_opcode : in std_logic_vector(5 downto 0);
-			  regDST, jump, branch, branchN, memRead, memToReg, memWrite, ALUsrc, ALUsrc2, regWrite : out std_logic;
+			  regDST, jump, branch, branchN, memRead, memToReg : out std_logic; 
+			  memWrite, ALUsrc, ALUsrc2, regWrite, unknown_opcode : out std_logic;
 			  ALUop : out std_logic_vector (2 downto 0));
 		  
 	end component;
@@ -198,7 +199,8 @@ begin
 					memToReg => sel_BREG_WD,
 					memWrite => write_DATA_MEM,
 					regDST => sel_BREG_WR,
-					regWrite => write_BREG);
+					regWrite => write_BREG,
+					unknown_opcode => unknown_opcode);
 	
 	Exception_Controller: MIPS_Exception_Controller
 		generic map(WSIZE => WSIZE)
@@ -317,5 +319,5 @@ end behavioral;
 
 -- TODO list:
 --		Finish behavioral architecture of MIPS_Processor_Unicycle.
---		Replace 2 PC related Mux2to1 with 1 Mux4to1 and include jump_ADDR.
+--		Implement ERET instruction.
 --		Add generics for every component length variable. 

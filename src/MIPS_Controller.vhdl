@@ -5,7 +5,8 @@ use IEEE.NUMERIC_STD.ALL;
 entity MIPS_Controller is
 	
 	port(int_opcode : in std_logic_vector(5 downto 0);
-        regDST, jump, branch, branchN, memRead, memToReg, memWrite, ALUsrc, ALUsrc2, regWrite : out std_logic;
+        regDST, jump, branch, branchN, memRead, memToReg : out std_logic; 
+		  memWrite, ALUsrc, ALUsrc2, regWrite, unknown_opcode : out std_logic;
 		  ALUop : out std_logic_vector (2 downto 0));
 		  
 end MIPS_Controller;
@@ -36,6 +37,7 @@ begin
 				ALUsrc <= '0';
 				ALUsrc2 <= '0';
 				regWrite <= '1';
+				unknown_opcode <= '0';
 				ALUop <= "100";
          -- addi
          when "001000" =>
@@ -49,6 +51,7 @@ begin
 				ALUsrc <= '1';
 				ALUsrc2 <= '0';
 				regWrite <= '1';
+				unknown_opcode <= '0';
 				ALUop <= "000";
          --addiu
          when "001001" =>
@@ -62,6 +65,7 @@ begin
 				ALUsrc <= '1';
 				ALUsrc2 <= '0';
 				regWrite <= '1';
+				unknown_opcode <= '0';
 				ALUop <= "101";
 			--j
          when "000001" =>
@@ -75,6 +79,7 @@ begin
 				ALUsrc <= '0';
 				ALUsrc2 <= '0';
 				regWrite <= '0';
+				unknown_opcode <= '0';
 				ALUop <= "000";
          --jal
          when "000011" => --usar jump e regwrite sendo 1 para registrador de escrita ser $31
@@ -88,6 +93,7 @@ begin
 				ALUsrc <= '0';
 				ALUsrc2 <= '0';
 				regWrite <= '1';
+				unknown_opcode <= '0';
 				ALUop <= "000";
             --slti
          when "001010" =>
@@ -101,6 +107,7 @@ begin
 				ALUsrc <= '1';
 				ALUsrc2 <= '0';
 				regWrite <= '1';
+				unknown_opcode <= '0';
 				ALUop <= "110";
 				
          when "001100" => --ANDi
@@ -114,6 +121,7 @@ begin
 				ALUsrc <= '1';
 				ALUsrc2 <= '0';
 				regWrite <= '1';
+				unknown_opcode <= '0';
 				ALUop <= "010";
 
 			when "000100" => --BEQ
@@ -127,6 +135,7 @@ begin
 				ALUsrc <= '0';
 				ALUsrc2 <= '0';
 				regWrite <= '0';
+				unknown_opcode <= '0';
 				ALUop <= "001";
 	
 			when "000101" => --BNE
@@ -140,6 +149,7 @@ begin
 				ALUsrc <= '0';
 				ALUsrc2 <= '0';
 				regWrite <= '0';
+				unknown_opcode <= '0';
 				ALUop <= "001";
 		
 			when "001111" => --LUI
@@ -153,6 +163,7 @@ begin
 				ALUsrc <= '0';
 				ALUsrc2 <= '1';
 				regWrite <= '1';
+				unknown_opcode <= '0';
 				ALUop <= "000";
 				
 			when others =>
@@ -166,6 +177,7 @@ begin
 				ALUsrc <= '0';
 				ALUsrc2 <= '0';
 				regWrite <= '0';
+				unknown_opcode <= '1';
 				ALUop <= "111";
 			end case;
 			
