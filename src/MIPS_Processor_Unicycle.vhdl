@@ -1,7 +1,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
-
+	
 entity MIPS_Processor_Unicycle is
 
 	generic(MIF_FILE_DATA : string := "mif/Data.mif";
@@ -12,7 +12,8 @@ entity MIPS_Processor_Unicycle is
 			  WSIZE : natural := 32);
 	
 	port(clock, keys_input, reset, run : in STD_LOGIC;
-		  keys : in STD_LOGIC_VECTOR(7 downto 0));
+		  keys : in STD_LOGIC_VECTOR(7 downto 0);
+		  nibble_codes : out STD_LOGIC_VECTOR(63 downto 0));
 		  
 end MIPS_Processor_Unicycle;
 
@@ -284,6 +285,40 @@ begin
 					selector => (sel_shamt & sel_ULA_opB),
 					output => ULA_opB);	
 
+-- Nibble displays:
+
+	ND_PC_0: NibbleDisplay
+		port map(display_code => nibble_codes(7 downto 0),
+					nibble => PC_output(3 downto 0));
+
+	ND_PC_1: NibbleDisplay
+		port map(display_code => nibble_codes(15 downto 8),
+					nibble => PC_output(7 downto 4));
+					
+	ND_PC_2: NibbleDisplay
+		port map(display_code => nibble_codes(23 downto 16),
+					nibble => PC_output(11 downto 8));
+					
+	ND_PC_3: NibbleDisplay
+		port map(display_code => nibble_codes(31 downto 24),
+					nibble => PC_output(15 downto 12));					
+
+	ND_PC_4: NibbleDisplay
+		port map(display_code => nibble_codes(39 downto 32),
+					nibble => PC_output(19 downto 16));
+					
+	ND_PC_5: NibbleDisplay
+		port map(display_code => nibble_codes(47 downto 40),
+					nibble => PC_output(23 downto 20));
+
+	ND_PC_6: NibbleDisplay
+		port map(display_code => nibble_codes(55 downto 48),
+					nibble => PC_output(27 downto 24));					
+
+	ND_PC_7: NibbleDisplay
+		port map(display_code => nibble_codes(63 downto 56),
+					nibble => PC_output(31 downto 28));
+					
 -- Program counters:
 
 	EPC: ProgramCounter
