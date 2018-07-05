@@ -14,7 +14,7 @@ end MIPS_Exception_Controller;
 
 architecture dataflow of MIPS_Exception_Controller is
 
-signal short_ADDR : STD_LOGIC_VECTOR(7 downto 0);
+signal short_ADDR : STD_LOGIC_VECTOR(11 downto 0);
 
 begin
 
@@ -23,8 +23,8 @@ begin
 	exception <= '1' when (overflow = '1' or unknown_opcode = '1') else
 					 '0';
 					 
-	short_ADDR <= x"F0" when (unknown_opcode = '1') else
-					  x"F8" when (overflow = '1') else
-					  x"00";
+	short_ADDR <= x"3F0" when (unknown_opcode = '1') else
+					  x"3F8" when (overflow = '1') else
+					  x"000";
 
 end dataflow;
