@@ -359,7 +359,7 @@ begin
 					
 	UA_branch_ADDR: UnsignedAdder
 		generic map(WSIZE => WSIZE)
-		port map(input1 => BREG_D2, 
+		port map(input1 => PC_plus_4, 
 					input2 => (sxt_imm(WSIZE-3 downto 0) & "00"),
 					output => branch_ADDR);	
 	
