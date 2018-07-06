@@ -224,7 +224,7 @@ begin
 
 	Data_RAM: RAM 
 		generic map(MIF_FILE => MIF_FILE_DATA)
-		port map(address => ULA_result(7 downto 0),
+		port map(address => ULA_result(9 downto 2),
 					clock => clock,
 					data => BREG_D2,
 					wren => write_DATA_MEM,
