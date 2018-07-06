@@ -14,8 +14,8 @@ entity MIPS_Processor_Unicycle is
 	port(clock, keys_input, reset, run : in STD_LOGIC;
 		  nibble_view : in STD_LOGIC_VECTOR(1 downto 0);
 		  keys : in STD_LOGIC_VECTOR(7 downto 0);
-		  nibble_codes : out STD_LOGIC_VECTOR(0 to 55)
-		  overflow,unknown_op);
+		  nibble_codes : out STD_LOGIC_VECTOR(0 to 55);
+		  overflow,unknown_op : out std_LOGIC);
 		  
 end MIPS_Processor_Unicycle;
 
@@ -42,7 +42,7 @@ architecture behavioral of MIPS_Processor_Unicycle is
 			  memWrite, ALUsrc, regWrite : out std_logic;
 			  regDST, memToReg : out std_logic_vector (1 downto 0);
 			  eret, unknown_opcode : out std_logic;
-			  ALUop : out std_logic_vector (3 downto 0)
+			  ALUop : out std_logic_vector (3 downto 0);
 			  jr, shamt : out std_logic);
 		  
 	end component;

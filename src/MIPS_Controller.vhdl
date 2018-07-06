@@ -5,12 +5,12 @@ use IEEE.NUMERIC_STD.ALL;
 entity MIPS_Controller is
 	
 	port(inst_opcode, inst_functor : in std_logic_vector(5 downto 0);
-        regDST, jump, branch, branchN : out std_logic; 
+        jump, branch, branchN : out std_logic; 
 		  memWrite, ALUsrc, regWrite : out std_logic; 
 		  regDST, memToReg : out std_logic_vector (1 downto 0);
 		  eret, unknown_opcode : out std_logic;
 		  ALUop : out std_logic_vector (3 downto 0);
-		  jr, shamt);
+		  jr, shamt : out std_logic);
 		  
 end MIPS_Controller;
 
@@ -221,7 +221,7 @@ begin
 				regWrite <= '1';
 				eret <= '0';				
 				unknown_opcode <= '0';
-				ALU <= "1001";
+				ALUop <= "1001";
 				jr <= '0';
 				shamt <='0';				
 				
@@ -275,7 +275,6 @@ begin
 				jump <= '0';
 				branch <= '0';
 				branchN <= '0';
-				memRead <= '1';
 				memToReg <= "01";
 				memWrite <= '0';
 				ALUsrc <= '1';
