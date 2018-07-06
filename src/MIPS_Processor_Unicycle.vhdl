@@ -159,7 +159,8 @@ signal BREG_D1, BREG_D2, BREG_WD : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 signal DATA_MEM_output : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 signal EPC_output, exception_ADDR : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 signal instruction : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
-signal jump_ADDR : STD_LOGIC_VECTOR(WSIZE-1 downto 0);	 
+signal jump_ADDR : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
+signal old_PC, old_PC_plus_4 : STD_LOGIC_VECTOR(WSIZE-1 downto 0);  	 
 signal PC_input, PC_output : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 signal PC_plus_4, next_PC : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 signal sxt_imm, sxt_keys : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
@@ -245,7 +246,7 @@ begin
 		port map(input1 => ULA_result, 
 					input2 => DATA_MEM_output,
 					input3 => sxt_imm,
-					input4 => PC_plus_4,
+					input4 => old_PC_plus_4,
 					selector => sel_BREG_WD,
 					output => BREG_WD);
 
@@ -334,7 +335,15 @@ begin
 					output => PC_output,
 					reset => not(reset),
 					write_enable => run);
-					
+	
+	OldPC: ProgramCounter
+		generic map(WSIZE => WSIZE)
+		port map(clock => clock,
+					data => PC_output,
+					output => old_PC,
+					reset => not(reset),
+					write_enable => run);
+	
 -- ULA (Arithmetic and Logic Unit):
 
 	ULA: MIPS_ULA
@@ -353,6 +362,12 @@ begin
 		port map(input1 => BREG_D2, 
 					input2 => (sxt_imm(WSIZE-3 downto 0) & "00"),
 					output => branch_ADDR);	
+	
+	UA_old_PC_plus_4: UnsignedAdder
+		generic map(WSIZE => WSIZE)
+		port map(input1 => std_logic_vector(to_unsigned(4, WSIZE)),
+					input2 => old_PC,
+					output => old_PC_plus_4);
 	
 	UA_PC_plus_4: UnsignedAdder
 		generic map(WSIZE => WSIZE)

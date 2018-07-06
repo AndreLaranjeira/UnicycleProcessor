@@ -161,7 +161,7 @@ begin
 				regWrite <= '1';
 				eret <= '0';				
 				unknown_opcode <= '0';
-				ALUop <= "0010";
+				ALUop <= "1111";
 				jr <= '0';
 				shamt <='0'; 
             
