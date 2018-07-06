@@ -360,5 +360,4 @@ end behavioral;
 -- TODO list:
 --		Finish behavioral architecture of MIPS_Processor_Unicycle.
 --		Implement ERET instruction.
---		Merge ULA_Controller into Controller.
 --		Add generics for every component length variable. 
