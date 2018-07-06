@@ -5,7 +5,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity MIPS_Controller is
 	
 	port(inst_opcode, inst_functor : in std_logic_vector(5 downto 0);
-        regDST, jump, branch, branchN, memRead : out std_logic; 
+        regDST, jump, branch, branchN : out std_logic; 
 		  memWrite, ALUsrc, regWrite : out std_logic; 
 		  regDST, memToReg : out std_logic_vector (1 downto 0);
 		  eret, unknown_opcode : out std_logic;
@@ -34,8 +34,7 @@ begin
 				regDST <= "01";
 				jump <= '0';
 				branch <= '0';
-				branchN <= '0';
-				memRead <= '0';
+				branchN <= '0';				
 				memToReg <= "00";
 				memWrite <= '0';
 				ALUsrc <= '0';
@@ -110,8 +109,7 @@ begin
 				regDST <= "00";
 				jump <= '0';
 				branch <= '0';
-				branchN <= '0';
-				memRead <= '0';
+				branchN <= '0';	
 				memToReg <= "00";
 				memWrite <= '0';
 				ALUsrc <= '1';
@@ -127,7 +125,6 @@ begin
 				jump <= '0';
 				branch <= '0';
 				branchN <= '0';
-				memRead <= '0';
 				memToReg <= "00";
 				memWrite <= '0';
 				ALUsrc <= '1';
@@ -143,7 +140,6 @@ begin
 				jump <= '1';
 				branch <= '0';
 				branchN <= '0';
-				memRead <= '0';
 				memToReg <= "00";
 				memWrite <= '0';
 				ALUsrc <= '0';
@@ -159,7 +155,6 @@ begin
 				jump <= '1';
 				branch <= '0';
 				branchN <= '0';
-				memRead <= '0';
 				memToReg <= "11";
 				memWrite <= '0';
 				ALUsrc <= '0';
@@ -175,7 +170,6 @@ begin
 				jump <= '0';
 				branch <= '0';
 				branchN <= '0';
-				memRead <= '0';
 				memToReg <= "00";
 				memWrite <= '0';
 				ALUsrc <= '1';
@@ -191,7 +185,6 @@ begin
 				jump <= '0';
 				branch <= '0';
 				branchN <= '0';
-				memRead <= '0';
 				memToReg <= "00";
 				memWrite <= '0';
 				ALUsrc <= '1';
@@ -207,7 +200,6 @@ begin
 				jump <= '0';
 				branch <= '0';
 				branchN <= '0';
-				memRead <= '0';
 				memToReg <= "00";
 				memWrite <= '0';
 				ALUsrc <= '1';
@@ -223,7 +215,6 @@ begin
 				jump <= '0';
 				branch <= '0';
 				branchN <= '0';
-				memRead <= '0';
 				memToReg <= "00";
 				memWrite <= '0';
 				ALUsrc <= '1';
@@ -239,7 +230,6 @@ begin
 				jump <= '0';
 				branch <= '1';
 				branchN <= '0';
-				memRead <= '0';
 				memToReg <= "00";
 				memWrite <= '0';
 				ALUsrc <= '0';
@@ -255,7 +245,6 @@ begin
 				jump <= '0';
 				branch <= '0';
 				branchN <= '1';
-				memRead <= '0';
 				memToReg <= "00";
 				memWrite <= '0';
 				ALUsrc <= '0';
@@ -271,7 +260,6 @@ begin
 				jump <= '0';
 				branch <= '0';
 				branchN <= '0';
-				memRead <= '0';
 				memToReg <= "10";
 				memWrite <= '0';
 				ALUsrc <= '0';
@@ -303,7 +291,6 @@ begin
 				jump <= '0';
 				branch <= '0';
 				branchN <= '0';
-				memRead <= '0';
 				memToReg <= "00";
 				memWrite <= '1';
 				ALUsrc <= '1';
@@ -323,7 +310,6 @@ begin
 						jump <= '0';
 						branch <= '0';
 						branchN <= '0';
-						memRead <= '0';
 						memToReg <= "00";
 						memWrite <= '0';
 						ALUsrc <= '0';
@@ -339,7 +325,6 @@ begin
 						jump <= '0';
 						branch <= '0';
 						branchN <= '0';
-						memRead <= '0';
 						memToReg <= "00";
 						memWrite <= '0';
 						ALUsrc <= '0';
@@ -357,7 +342,6 @@ begin
 				jump <= '0';
 				branch <= '0';
 				branchN <= '0';
-				memRead <= '0';
 				memToReg <= "00";
 				memWrite <= '0';
 				ALUsrc <= '0';
