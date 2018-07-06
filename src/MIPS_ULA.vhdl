@@ -107,32 +107,32 @@ begin
 				
 				-- Shift left logical.
 				when "1010" =>
-					result <= std_logic_vector(shift_left(unsigned(B),
-														to_integer(unsigned(A))));
+					result <= std_logic_vector(shift_left(unsigned(A),
+														to_integer(unsigned(B))));
 					overflow <= '0';
 				
 				-- Shift right logical.
 				when "1011" =>
-					result <= std_logic_vector(shift_right(unsigned(B),
-														to_integer(unsigned(A))));
+					result <= std_logic_vector(shift_right(unsigned(A),
+														to_integer(unsigned(B))));
 					overflow <= '0';
 				
 				-- Shift right arithmetic.
 				when "1100" =>
-					result <= std_logic_vector(shift_right(signed(B),
-														to_integer(unsigned(A))));
+					result <= std_logic_vector(shift_right(signed(A),
+														to_integer(unsigned(B))));
 					overflow <= '0';
 				
 				-- Rotate right.
 				when "1101" =>
-					result <= std_logic_vector(rotate_right(unsigned(B),
-														to_integer(unsigned(A))));
+					result <= std_logic_vector(rotate_right(unsigned(A),
+														to_integer(unsigned(B))));
 					overflow <= '0';
 				
 				-- Rotate left.
 				when "1110" =>
-					result <= std_logic_vector(rotate_left(unsigned(B),
-														to_integer(unsigned(A))));
+					result <= std_logic_vector(rotate_left(unsigned(A),
+														to_integer(unsigned(B))));
 					overflow <= '0';
 					
 				-- Unknown OPCODE.
