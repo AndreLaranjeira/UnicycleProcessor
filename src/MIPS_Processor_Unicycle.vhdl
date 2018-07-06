@@ -8,7 +8,7 @@ entity MIPS_Processor_Unicycle is
 			  MIF_FILE_INSTRUCTION : string := "mif/Instructions.mif";
 			  BREG_SIZE : natural := 5;
 			  OPCODE_SIZE : natural := 4;
-			  TYPES_SIZE : natural := 3;
+			  TYPES_SIZE : natural := 4;
 			  WSIZE : natural := 32);
 	
 	port(clock, keys_input, reset, run : in STD_LOGIC;
@@ -37,11 +37,12 @@ architecture behavioral of MIPS_Processor_Unicycle is
 	component MIPS_Controller is
 	
 		port(inst_opcode, inst_functor : in std_logic_vector(5 downto 0);
-			  jump, branch, branchN, memRead : out std_logic; 
+			  jump, branch, branchN : out std_logic; 
 			  memWrite, ALUsrc, regWrite : out std_logic;
 			  regDST, memToReg : out std_logic_vector (1 downto 0);
 			  eret, unknown_opcode : out std_logic;
-			  ALUop : out std_logic_vector (2 downto 0));
+			  ALUop : out std_logic_vector (3 downto 0)
+			  jr, shamt : out std_logic);
 		  
 	end component;
 	
@@ -52,16 +53,6 @@ architecture behavioral of MIPS_Processor_Unicycle is
 		port(overflow, unknown_opcode : in STD_LOGIC;
 			  exception_ADDR : out STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 			  exception : out STD_LOGIC);
-		  
-	end component;
-
-	component MIPS_ULA_Controller is
-	
-		port(ALUop : in std_logic_vector(2 downto 0);
-			  intFunct : in std_logic_vector(5 downto 0);
-			  ALU : out std_logic_vector (3 downto 0);
-			  jr : out std_logic;
-			  shamt : out std_logic);
 		  
 	end component;
 
@@ -148,7 +139,7 @@ architecture behavioral of MIPS_Processor_Unicycle is
 
 -- Control signals
 	
-signal branch, branchN, eret, exception, jump, read_DATA_MEM : STD_LOGIC;
+signal branch, branchN, eret, exception, jump : STD_LOGIC;
 signal sel_JR, sel_shamt : STD_LOGIC;
 signal sel_BREG_WD, sel_BREG_WR : STD_LOGIC_VECTOR(1 downto 0);
 signal sel_ULA_opB : STD_LOGIC;
@@ -157,7 +148,6 @@ signal unknown_opcode : STD_LOGIC;
 signal write_BREG, write_DATA_MEM : STD_LOGIC;
 
 signal instruction_type : STD_LOGIC_VECTOR(TYPES_SIZE-1 downto 0);
-signal ULA_opcode : STD_LOGIC_VECTOR(OPCODE_SIZE-1 downto 0);
 
 -- Data signals
 
@@ -206,19 +196,19 @@ begin
 	Controller: MIPS_Controller
 		port map(ALUop => instruction_type,
 					ALUsrc => sel_ULA_opB,
-					ALUsrc2 => sel_ULA_opB2,
 					branch => branch,
 					branchN => branchN,
 					eret => eret,
 					inst_functor => instruction(5 downto 0),
 					inst_opcode => instruction(31 downto 26),
 					jump => jump,
-					memRead => read_DATA_MEM,
 					memToReg => sel_BREG_WD,
 					memWrite => write_DATA_MEM,
 					regDST => sel_BREG_WR,
 					regWrite => write_BREG,
-					unknown_opcode => unknown_opcode);
+					unknown_opcode => unknown_opcode,
+					jr => sel_JR,
+					shamt => sel_shamt);
 	
 	Exception_Controller: MIPS_Exception_Controller
 		generic map(WSIZE => WSIZE)
@@ -226,13 +216,6 @@ begin
 					exception => exception,
 					overflow => ULA_overflow,
 					unknown_opcode => unknown_opcode);
-	
-	ULA_Controller: MIPS_ULA_Controller
-		port map(ALUop => instruction_type,
-					intFunct => instruction (5 downto 0),
-					ALU => ULA_opcode,
-					jr => sel_JR,
-					shamt => sel_shamt);
 					
 -- Memory units (RAMs):
 
@@ -348,7 +331,7 @@ begin
 
 	ULA: MIPS_ULA
 		generic map(WSIZE => WSIZE)
-		port map(opcode => ULA_opcode,
+		port map(opcode => instruction_type,
 					A => BREG_D1,
 					B => ULA_opB,
 					O => ULA_overflow,
