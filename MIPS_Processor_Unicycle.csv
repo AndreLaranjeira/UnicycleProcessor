@@ -14,7 +14,7 @@
 
 # Quartus II 32-bit Version 13.0.1 Build 232 06/12/2013 Service Pack 1 SJ Web Edition
 # File: C:\altera\Quartus projects\Projeto final - MIPS uniciclo\MIPS_Processor_Unicycle.csv
-# Generated on: Thu Jul 05 18:16:58 2018
+# Generated on: Fri Jul 06 16:04:02 2018
 
 # Note: The column header names should not be changed if you wish to import this .csv file into the Quartus II software.
 
@@ -87,5 +87,7 @@ nibble_codes[54],Output,PIN_P9,2,B2_N1,,,,
 nibble_codes[55],Output,PIN_N9,2,B2_N1,,,,
 nibble_view[1],Input,PIN_V1,,,,,,
 nibble_view[0],Input,PIN_U4,1,B1_N0,,,,
+overflow,Output,PIN_AF23,7,B7_N0,,,,
 reset,Input,PIN_W26,6,B6_N1,,,,
 run,Input,PIN_V2,1,B1_N0,,,,
+unknown_op,Output,PIN_AE23,7,B7_N0,,,,
