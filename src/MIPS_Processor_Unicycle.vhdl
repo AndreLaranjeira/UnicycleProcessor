@@ -245,7 +245,7 @@ begin
 		generic map(WSIZE => WSIZE)
 		port map(input1 => ULA_result, 
 					input2 => DATA_MEM_output,
-					input3 => sxt_imm,
+					input3 => std_logic_vector(shift_left(signed(sxt_imm), 16)),
 					input4 => old_PC_plus_4,
 					selector => sel_BREG_WD,
 					output => BREG_WD);
