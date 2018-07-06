@@ -163,7 +163,7 @@ signal jump_ADDR : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 signal PC_input, PC_output : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 signal PC_plus_4, next_PC : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 signal sxt_imm, sxt_keys : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
-signal ULA_opB, ULA_result : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
+signal ULA_opA, ULA_opB, ULA_result : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 
 signal data_mem_nibble_codes, inst_nibble_codes : STD_LOGIC_VECTOR(0 to 55);
 signal PC_nibble_codes, ULA_nibble_codes : STD_LOGIC_VECTOR(0 to 55);
@@ -285,13 +285,18 @@ begin
 					selector => ((keys_input or eret) & (keys_input or exception)),
 					output => PC_input);				
 				
-	Mux_ULA_opB: Multiplexer4to1
+	Mux_ULA_opA: Multiplexer2to1			
+		generic map(WSIZE => WSIZE)
+		port map(input1 => BREG_D1, 
+					input2 => std_logic_vector(resize(unsigned(instruction(10 downto 6)), WSIZE)),
+					selector => sel_shamt,
+					output => ULA_opA);
+					
+	Mux_ULA_opB: Multiplexer2to1
 		generic map(WSIZE => WSIZE)
 		port map(input1 => BREG_D2, 
 					input2 => sxt_imm,
-					input3 => std_logic_vector(resize(unsigned(instruction(10 downto 6)), WSIZE)),
-					input4 => std_logic_vector(to_unsigned(0, WSIZE)),
-					selector => (sel_shamt & sel_ULA_opB),
+					selector => sel_ULA_opB,
 					output => ULA_opB);	
 
 -- Nibble display converters:
@@ -335,7 +340,7 @@ begin
 	ULA: MIPS_ULA
 		generic map(WSIZE => WSIZE)
 		port map(opcode => instruction_type,
-					A => BREG_D1,
+					A => ULA_opA,
 					B => ULA_opB,
 					O => ULA_overflow,
 					R => ULA_result,
