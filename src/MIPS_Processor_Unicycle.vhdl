@@ -12,7 +12,7 @@ entity MIPS_Processor_Unicycle is
 			  WSIZE : natural := 32);
 	
 	port(clock, keys_input, reset, run : in STD_LOGIC;
-		  nibble_view : in STD_LOGIC_VECTOR(1 downto 0);
+		  nibble_view : in STD_LOGIC_VECTOR(2 downto 0);
 		  keys : in STD_LOGIC_VECTOR(7 downto 0);
 		  nibble_codes : out STD_LOGIC_VECTOR(0 to 55);
 		  overflow,unknown_op : out std_LOGIC);
@@ -160,12 +160,15 @@ signal DATA_MEM_output : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 signal EPC_output, exception_ADDR : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 signal instruction : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 signal jump_ADDR : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
+signal nibble_codes1, nibble_codes2 : STD_LOGIC_VECTOR(0 to 55);
 signal old_PC, old_PC_plus_4 : STD_LOGIC_VECTOR(WSIZE-1 downto 0);  	 
 signal PC_input, PC_output : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 signal PC_plus_4, next_PC : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 signal sxt_imm, sxt_keys : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 signal ULA_opA, ULA_opB, ULA_result : STD_LOGIC_VECTOR(WSIZE-1 downto 0);
 
+signal BREG_D1_nibble_codes, BREG_D2_nibble_codes : STD_LOGIC_VECTOR(0 to 55);
+signal BREG_WD_nibble_codes, BREG_WR_nibble_codes : STD_LOGIC_VECTOR(0 to 55);
 signal data_mem_nibble_codes, inst_nibble_codes : STD_LOGIC_VECTOR(0 to 55);
 signal PC_nibble_codes, ULA_nibble_codes : STD_LOGIC_VECTOR(0 to 55);
 	
@@ -258,15 +261,31 @@ begin
 					input4 => "11111",
 					selector => sel_BREG_WR,
 					output => BREG_WR);
-	
-	Mux_nibble_codes: Multiplexer4to1
+
+	Mux_nibble_codes: Multiplexer2to1
+		generic map(WSIZE => 56)
+		port map(input1 => nibble_codes1, 
+					input2 => nibble_codes2,
+					selector => nibble_view(2),
+					output => nibble_codes);				
+				
+	Mux_nibble_codes1: Multiplexer4to1
 		generic map(WSIZE => 56)
 		port map(input1 => PC_nibble_codes, 
 					input2 => inst_nibble_codes,
 					input3 => ULA_nibble_codes, 
 					input4 => data_mem_nibble_codes,
-					selector => nibble_view,
-					output => nibble_codes);
+					selector => nibble_view(1 downto 0),
+					output => nibble_codes1);
+
+	Mux_nibble_codes2: Multiplexer4to1
+		generic map(WSIZE => 56)
+		port map(input1 => BREG_D1_nibble_codes, 
+					input2 => BREG_D2_nibble_codes,
+					input3 => BREG_WD_nibble_codes, 
+					input4 => BREG_WR_nibble_codes,
+					selector => nibble_view(1 downto 0),
+					output => nibble_codes2);					
 	
 	Mux_next_PC: Multiplexer4to1
 		generic map(WSIZE => WSIZE)
@@ -301,6 +320,22 @@ begin
 					output => ULA_opB);	
 
 -- Nibble display converters:
+
+	NDC_BREG_D1: NibbleDisplayConverter
+		port map(input => BREG_D1,
+					output => BREG_D1_nibble_codes);
+					
+	NDC_BREG_D2: NibbleDisplayConverter
+		port map(input => BREG_D2,
+					output => BREG_D2_nibble_codes);					
+
+	NDC_BREG_WD: NibbleDisplayConverter
+		port map(input => BREG_WD,
+					output => BREG_WD_nibble_codes);
+
+	NDC_BREG_WR: NibbleDisplayConverter
+		port map(input => std_logic_vector(resize(unsigned(BREG_WR), WSIZE)),
+					output => BREG_WR_nibble_codes);
 
 	NDC_Data_Mem: NibbleDisplayConverter
 		port map(input => DATA_MEM_output,
