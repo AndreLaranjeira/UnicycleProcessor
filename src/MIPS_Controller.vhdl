@@ -42,7 +42,7 @@ begin
 				eret <= '0';
 				unknown_opcode <= '0';
 				case inst_functor is
-                    when "101000"=> -- AND
+                    when "100100"=> -- AND
                         ALUop <= "0000";
 						jr <= '0';
 						shamt <='0';
