@@ -14,16 +14,6 @@ entity MIPS_Controller is
 		  
 end MIPS_Controller;
 
--- ALUops
--- 000 -> soma
--- 001 -> subtração
--- 010 -> and
--- 011 -> or
--- 100 -> tipo R
--- 101 -> soma unsigned
--- 110 -> slt
--- 111 -> Xor
-
 architecture behavioral of MIPS_Controller is
 begin
     Operation: process(inst_opcode, inst_functor)
