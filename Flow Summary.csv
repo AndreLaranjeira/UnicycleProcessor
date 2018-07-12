@@ -1,0 +1,32 @@
+Copyright (C) 1991-2013 Altera Corporation
+Your use of Altera Corporation's design tools, logic functions 
+and other software and tools, and its AMPP partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Altera Program License 
+Subscription Agreement, Altera MegaCore Function License 
+Agreement, or other applicable license agreement, including, 
+without limitation, that your use is for the sole purpose of 
+programming logic devices manufactured by Altera and sold by 
+Altera or its authorized distributors.  Please refer to the 
+applicable agreement for further details.
+
+Flow Summary
+
+Flow Status,Successful - Thu Jul 12 18:18:41 2018
+Quartus II 32-bit Version,13.0.1 Build 232 06/12/2013 SP 1 SJ Web Edition
+Revision Name,MIPS_Processor_Unicycle
+Top-level Entity Name,MIPS_Processor_Unicycle
+Family,Cyclone II
+Device,EP2C35F672C6
+Timing Models,Final
+Total logic elements,"4,403"
+    Total combinational functions,"3,409"
+    Dedicated logic registers,"1,088"
+Total registers,1088
+Total pins,73
+Total virtual pins,0
+Total memory bits,"16,384"
+Embedded Multiplier 9-bit elements,0
+Total PLLs,0
