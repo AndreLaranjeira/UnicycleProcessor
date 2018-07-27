@@ -25,16 +25,16 @@ begin
 	Reg1 <= GPR(to_integer(unsigned(readADDR1)));
 	Reg2 <= GPR(to_integer(unsigned(readADDR2)));
 
-	Sync: process(clock)
+	Sync: process(reset, clock)
 	
 	begin
 	
-		if(rising_edge(clock)) then
-		
-			if(reset = '1') then
-				GPR <= (others => (others => '0'));
+		if(reset = '1') then
+			GPR <= (others => (others => '0'));
+	
+		elsif(rising_edge(clock)) then
 				
-			elsif(write_enable = '1' and writeADDR /= "00000") then
+			if(write_enable = '1' and writeADDR /= "00000") then
 				GPR(to_integer(unsigned(writeADDR))) <= write_data;
 				
 			end if;
