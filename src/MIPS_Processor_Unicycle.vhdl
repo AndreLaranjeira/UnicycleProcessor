@@ -411,8 +411,3 @@ begin
 					output => PC_plus_4);
 	
 end behavioral;
-
--- TODO list:
---		Finish behavioral architecture of MIPS_Processor_Unicycle.
---		Implement ERET instruction.
---		Add generics for every component length variable. 
